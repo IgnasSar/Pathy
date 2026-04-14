@@ -15,10 +15,11 @@ export const mockPlaces = [
       lat: 54.6521,
       lng: 24.9341,
     },
-    thumbnailUrl: "https://placehold.co/600x400?text=Trakai+Castle",
+    thumbnailUrl:
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Trakai%20Island%20Castle.jpg",
     imageUrls: [
-      "https://placehold.co/600x400?text=Trakai+Castle+1",
-      "https://placehold.co/600x400?text=Trakai+Castle+2",
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Trakai%20Island%20Castle%20(8210815).jpg",
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Trakai%20Island%20Castle%20(7).jpg",
     ],
     tags: ["history", "lake", "family-friendly"],
     recommendedVisitMinutes: 90,
@@ -37,10 +38,11 @@ export const mockPlaces = [
       lat: 54.6423,
       lng: 24.9712,
     },
-    thumbnailUrl: "https://placehold.co/600x400?text=Uzutrakis+Manor",
+    thumbnailUrl:
+      "https://commons.wikimedia.org/wiki/Special:FilePath/U%C5%BEutrakio%20dvaras%2027.JPG",
     imageUrls: [
-      "https://placehold.co/600x400?text=Uzutrakis+Manor+1",
-      "https://placehold.co/600x400?text=Uzutrakis+Manor+2",
+      "https://commons.wikimedia.org/wiki/Special:FilePath/U%C5%BEutrakio%20dvaras%2028.JPG",
+      "https://commons.wikimedia.org/wiki/Special:FilePath/U%C5%BEutrakio%20dvaras%20-%20panoramio%20(3).jpg",
     ],
     tags: ["history", "architecture", "park"],
     recommendedVisitMinutes: 60,
@@ -59,10 +61,11 @@ export const mockPlaces = [
       lat: 54.6868,
       lng: 25.2906,
     },
-    thumbnailUrl: "https://placehold.co/600x400?text=Gediminas+Tower",
+    thumbnailUrl:
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Gediminas-Tower.jpg",
     imageUrls: [
-      "https://placehold.co/600x400?text=Gediminas+Tower+1",
-      "https://placehold.co/600x400?text=Gediminas+Tower+2",
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Gediminas%20Tower.jpg",
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Gediminas%20Tower%20(9651326233).jpg",
     ],
     tags: ["history", "city", "panorama"],
     recommendedVisitMinutes: 45,
@@ -81,8 +84,12 @@ export const mockPlaces = [
       lat: 54.6836,
       lng: 25.2926,
     },
-    thumbnailUrl: null,
-    imageUrls: [],
+    thumbnailUrl:
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Bernardinai%20garden.jpg",
+    imageUrls: [
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Bernardinai%20garden%202.jpg",
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Bernardinai%20garden%203.jpg",
+    ],
     tags: ["park", "city", "family-friendly"],
     recommendedVisitMinutes: 40,
   },
@@ -100,10 +107,11 @@ export const mockPlaces = [
       lat: 54.9302,
       lng: 23.8818,
     },
-    thumbnailUrl: "https://placehold.co/600x400?text=IX+Fort+Museum",
+    thumbnailUrl:
+      "https://commons.wikimedia.org/wiki/Special:FilePath/IX%20Fort%20(2008-09-20)01.jpg",
     imageUrls: [
-      "https://placehold.co/600x400?text=IX+Fort+Museum+1",
-      "https://placehold.co/600x400?text=IX+Fort+Museum+2",
+      "https://commons.wikimedia.org/wiki/Special:FilePath/IX%20Fort%20(2008-09-20)02.jpg",
+      "https://commons.wikimedia.org/wiki/Special:FilePath/9%20fort.JPG",
     ],
     tags: ["museum", "history", "memorial"],
     recommendedVisitMinutes: 80,
@@ -122,10 +130,11 @@ export const mockPlaces = [
       lat: 54.8777,
       lng: 24.0207,
     },
-    thumbnailUrl: "https://placehold.co/600x400?text=Pazaislis+Monastery",
+    thumbnailUrl:
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Pa%C5%BEaislis%20monastery01.JPG",
     imageUrls: [
-      "https://placehold.co/600x400?text=Pazaislis+Monastery+1",
-      "https://placehold.co/600x400?text=Pazaislis+Monastery+2",
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Pa%C5%BEaislis%20monastery05.JPG",
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Pazaislis%20Monastery%20(Kaunas%2C%20Lithuania%2C%202017).jpg",
     ],
     tags: ["architecture", "history", "lake"],
     recommendedVisitMinutes: 60,
@@ -144,10 +153,11 @@ export const mockPlaces = [
       lat: 56.0153,
       lng: 23.4167,
     },
-    thumbnailUrl: "https://placehold.co/600x400?text=Hill+of+Crosses",
+    thumbnailUrl:
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Hill%20of%20crosses.JPG",
     imageUrls: [
-      "https://placehold.co/600x400?text=Hill+of+Crosses+1",
-      "https://placehold.co/600x400?text=Hill+of+Crosses+2",
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Hill%20of%20Crosses%2005082019%20016.jpg",
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Hill%20of%20Crosses%2005082019%20020.jpg",
     ],
     tags: ["pilgrimage", "history", "landmark"],
     recommendedVisitMinutes: 50,
@@ -166,10 +176,11 @@ export const mockPlaces = [
       lat: 56.1938,
       lng: 24.7592,
     },
-    thumbnailUrl: "https://placehold.co/600x400?text=Kirkilai+Tower",
+    thumbnailUrl:
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Kirkilai%20Observation%20Tower%2C%202016.jpg",
     imageUrls: [
-      "https://placehold.co/600x400?text=Kirkilai+Tower+1",
-      "https://placehold.co/600x400?text=Kirkilai+Tower+2",
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Kirkilu%20ezeras%20nuo%20apzvalgos%20boksto%20sum.jpg",
+      "https://commons.wikimedia.org/wiki/Special:FilePath/BirzaiSinkhole.jpg",
     ],
     tags: ["viewpoint", "nature", "photography"],
     recommendedVisitMinutes: 35,
@@ -188,10 +199,11 @@ export const mockPlaces = [
       lat: 55.3036,
       lng: 21.0084,
     },
-    thumbnailUrl: "https://placehold.co/600x400?text=Nida+Dunes",
+    thumbnailUrl:
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Nida%20Dunes.jpg",
     imageUrls: [
-      "https://placehold.co/600x400?text=Nida+Dunes+1",
-      "https://placehold.co/600x400?text=Nida+Dunes+2",
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Parnidis%20dune.jpg",
+      "https://commons.wikimedia.org/wiki/Special:FilePath/Parnidis%20Dune%2002.jpg",
     ],
     tags: ["sea", "nature", "walk"],
     recommendedVisitMinutes: 120,
