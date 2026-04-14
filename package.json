@@ -1,0 +1,34 @@
+{
+  "name": "pathy",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Pathy monorepo",
+  "packageManager": "pnpm@10.33.0",
+  "scripts": {
+    "dev": "concurrently --names web,api --prefix-colors cyan,magenta \"pnpm dev:web\" \"pnpm dev:api\"",
+    "dev:web": "pnpm --dir packages/web dev",
+    "dev:api": "pnpm --dir packages/api dev",
+    "build:web": "pnpm --dir packages/web build",
+    "build:api": "pnpm --dir packages/api build",
+    "build:shared": "pnpm --dir packages/shared build",
+    "build": "pnpm run build:shared && pnpm run build:api && pnpm run build:web",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck:web": "pnpm --dir packages/web typecheck",
+    "typecheck:api": "pnpm --dir packages/api typecheck",
+    "typecheck:shared": "pnpm --dir packages/shared typecheck",
+    "typecheck": "pnpm run typecheck:shared && pnpm run typecheck:api && pnpm run typecheck:web"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "concurrently": "^9.2.1",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.5.0",
+    "prettier": "^3.8.2",
+    "typescript-eslint": "^8.58.2"
+  }
+}
