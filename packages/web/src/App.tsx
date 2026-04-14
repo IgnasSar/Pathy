@@ -1,15 +1,21 @@
 import { useState } from "react";
 import type {
-  DemoEchoResponse,
-  DemoItemsResponse,
-  DemoMessageResponse,
-  HealthResponse,
+  PlaceDetailResponse,
+  PlaceFiltersResponse,
+  PlacesResponse,
+  RoutePreviewResponse,
 } from "@pathy/shared";
 
 type ResultState = {
   title: string;
   body: string;
 };
+
+type ApiTestResponse =
+  | PlaceFiltersResponse
+  | PlacesResponse
+  | PlaceDetailResponse
+  | RoutePreviewResponse;
 
 async function readJson<T>(input: RequestInfo, init?: RequestInit) {
   const response = await fetch(input, init);
@@ -31,12 +37,7 @@ function App() {
 
   async function runRequest(
     title: string,
-    request: () => Promise<
-      | HealthResponse
-      | DemoMessageResponse
-      | DemoItemsResponse
-      | DemoEchoResponse
-    >,
+    request: () => Promise<ApiTestResponse>,
   ) {
     setLoading(true);
 
@@ -66,51 +67,75 @@ function App() {
             type="button"
             className="rounded border border-slate-300 px-3 py-2 text-sm"
             onClick={() =>
-              runRequest("Health", () => readJson<HealthResponse>("/health"))
-            }
-          >
-            GET /health
-          </button>
-          <button
-            type="button"
-            className="rounded border border-slate-300 px-3 py-2 text-sm"
-            onClick={() =>
-              runRequest("Message", () =>
-                readJson<DemoMessageResponse>("/api/demo/message"),
+              runRequest("Filters", () =>
+                readJson<PlaceFiltersResponse>("/api/filters"),
               )
             }
           >
-            GET /api/demo/message
+            GET /api/filters
           </button>
           <button
             type="button"
             className="rounded border border-slate-300 px-3 py-2 text-sm"
             onClick={() =>
-              runRequest("Items", () =>
-                readJson<DemoItemsResponse>("/api/demo/items"),
+              runRequest("Places", () =>
+                readJson<PlacesResponse>("/api/places"),
               )
             }
           >
-            GET /api/demo/items
+            GET /api/places
           </button>
           <button
             type="button"
             className="rounded border border-slate-300 px-3 py-2 text-sm"
             onClick={() =>
-              runRequest("Echo", () =>
-                readJson<DemoEchoResponse>("/api/demo/echo", {
+              runRequest("Nearby places", () =>
+                readJson<PlacesResponse>(
+                  "/api/places?lat=54.6872&lng=25.2797&radiusKm=40",
+                ),
+              )
+            }
+          >
+            GET /api/places?radiusKm=40
+          </button>
+          <button
+            type="button"
+            className="rounded border border-slate-300 px-3 py-2 text-sm"
+            onClick={() =>
+              runRequest("Place detail", () =>
+                readJson<PlaceDetailResponse>("/api/places/trakai-castle"),
+              )
+            }
+          >
+            GET /api/places/:id
+          </button>
+          <button
+            type="button"
+            className="rounded border border-slate-300 px-3 py-2 text-sm"
+            onClick={() =>
+              runRequest("Route preview", () =>
+                readJson<RoutePreviewResponse>("/api/route-preview", {
                   method: "POST",
                   headers: {
                     "Content-Type": "application/json",
                   },
                   body: JSON.stringify({
-                    text: "Hello from the frontend",
+                    placeIds: [
+                      "trakai-castle",
+                      "uzutrakis-manor",
+                      "gediminas-tower",
+                    ],
+                    transportType: "car",
+                    origin: {
+                      lat: 54.6872,
+                      lng: 25.2797,
+                    },
                   }),
                 }),
               )
             }
           >
-            POST /api/demo/echo
+            POST /api/route-preview
           </button>
         </div>
 
