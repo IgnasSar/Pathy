@@ -1,3 +1,7 @@
+Last synced: 2026-04-14 18:39
+
+---
+
 # 1. Epic: [ECS-15] Objektų paieška
 
 ### [ECS-7] Sistema turi pateikti paieškos rezultatus per ≤ 2 sekundes.
@@ -11,12 +15,14 @@
 
 - **Prioritetas:** Highest
 - **Aprašymas ir priėmimo kriterijai:**
-  Sistema leidžia vartotojui įvesti objekto pavadinimą ir pateikia sąrašą objektų, kurie yra panašūs į įvestą objektą.
+  Sistema leidžia vartotojui įvesti objekto pavadinimą ir identifikavus atitinkamą objektą, pateikia sąrašą kitų objektų, kurie yra panašūs pagal kategoriją.
   _Priėmimo kriterijai:_
-  - Įvedus tekstą, rodomi rezultatai
-  - Jei nieko nerasta → rodomas klaidos pranešimas
-  - Rezultatai rodomi ≤ 2 sek.
-  - Paieška nėra case-sensitive
+  - Vartotojas gali įvesti pilną arba dalinį objekto pavadinimą.
+  - Sistema pagal įvestą tekstą identifikuoja labiausiai atitinkantį objektą.
+  - Identifikavus objektą, pateikiami kiti objektai iš tos pačios kategorijos.
+  - Paieškai didžiosios ir mažosios raidės įtakos nedaro.
+  - Rezultatai pateikiami per ≤ 2 sek.
+  - Jei nepavyksta identifikuoti objekto → rodomas pranešimas vartotojui.
 - **Ryšiai:**
   - _Blokuoja (Blocks):_ ECS-7
   - _Susiję su (Relates):_ ECS-11, ECS-9, ECS-25, ECS-7, ECS-30
@@ -36,10 +42,11 @@
 
 - **Prioritetas:** Medium
 - **Aprašymas ir priėmimo kriterijai:**
-  Sistema turi apdoroti vartotojo įkeltą nuotrauką, nustatyti joje esantį objektą ir susieti jį su duomenų bazės įrašu.
+  Sistema turi apdoroti vartotojo įkeltą nuotrauką, naudojant Google Vision API (arba kitą pasirinktą paslaugą) nustatyti joje esantį objektą ir susieti jį su duomenų bazės įrašu.
   _Priėmimo kriterijai:_
   - Sistema leidžia įkelti nuotrauką JPG, PNG formatais (iki 5MB).
   - Identifikavimo procesas (nuo įkėlimo iki rezultato) trunka ne ilgiau 5 sekundžių.
+  - DI modelio sėkmingo atpažinimo tikslumas turi būti ne mažesnis nei 90%.
   - Jei objektas atpažįstamas, ekrane parodomas jo pavadinimas, nuotrauka iš DB ir trumpas aprašymas.
   - Jei objektas neatpažįstamas (pvz., nufotografuotas neaiškus vaizdas), sistema parodo klaidą: „Objektas nerastas, bandykite kitą kampą“.
 - **Ryšiai:**
@@ -91,11 +98,12 @@
 
 - **Prioritetas:** Highest
 - **Aprašymas ir priėmimo kriterijai:**
-  Sistema leidžia vartotojui pasirinkti norimą atstumo spindulį ir pateikia tik tuos objektus, kurie patenka į šį atstumą nuo vartotojo buvimo vietos arba pasirinktos lokacijos.
+  Sistema leidžia vartotojui pasirinkti arba įvesti norimą atstumo spindulį nuo savo buvimo vietos arba pasirinktos lokacijos. Paspaudus filtravimo mygtuką, sistema pateikia tik tuos objektus, kurie patenka į nurodytą atstumą.
   _Priėmimo kriterijai:_
-  - Vartotojas gali pasirinkti atstumą (pvz., 1km, 5km, 10km)
-  - Rodomi tik objektai pasirinktame spindulyje
-  - Jei nėra rezultatų → rodomas klaidos pranešimas
+  - Vartotojas gali pasirinkti atstumą iš pateiktų reikšmių (pvz., 1 km, 5 km, 10 km) arba įvesti savo atstumo reikšmę.
+  - Pakeitus atstumo reikšmę, filtravimas įvykdomas dar kartą paspaudus filtravimo mygtuką.
+  - Sistema pateikia tik tuos objektus, kurie patenka į nurodytą atstumą.
+  - Jei nėra objektų nurodytame spindulyje → rodomas pranešimas vartotojui.
 - **Ryšiai:**
   - _Blokuoja (Blocks):_ ECS-8
   - _Susiję su (Relates):_ ECS-10, ECS-20, ECS-32, ECS-14, ECS-8
@@ -271,12 +279,10 @@
 
 - **Prioritetas:** High
 - **Aprašymas ir priėmimo kriterijai:**
-  Kaip vartotojas, noriu pasirinkti transporto tipą (pėsčiomis, dviračiu, automobiliu), kad maršrutas būtų pritaikytas mano keliavimo būdui.
+  Kaip vartotojas, noriu UI sąsajoje pasirinkti transporto priemonę, kad maršrutas būtų pritaikytas mano keliavimo būdui.
   _Priėmimo kriterijai:_
-  - Vartotojas gali pasirinkti vieną iš transporto tipų: pėsčiomis, dviračiu, automobiliu
+  - Vartotojas gali pasirinkti vieną transporto tipą iš pateiktų variantų UI sąsajoje
   - Pasirinktas transporto tipas yra išsaugomas sesijos metu
-  - Sistema, sudarydama maršrutą, atsižvelgia į pasirinktą transporto tipą
-  - Pakeitus transporto tipą, maršrutas perskaičiuojamas
   - Jei transporto tipas nepasirinktas, maršruto generavimas nėra leidžiamas ir vartotojui rodomas pranešimas, kad reikia pasirinkti transporto tipą
 - **Ryšiai:**
   - _Blokuoja (Blocks):_ ECS-12
@@ -294,7 +300,7 @@
 - **Aprašymas ir priėmimo kriterijai:**
   Sistema turi apskaičiuoti kelionės trukmę tarp pasirinktų objektų, atsižvelgiant į atstumą ir pasirinktą transporto tipą.
   _Priėmimo kriterijai:_
-  - Sistema apskaičiuoja bendrą maršruto trukmę
+  - Sistema apskaičiuoja bendrą maršruto trukmę naudodama API
   - Trukmė pateikiama vartotojui suprantamu formatu (pvz., valandos ir minutės)
   - Skaičiavimas naudoja pasirinktą transporto tipą
   - Pasikeitus objektams arba transportui, trukmė atnaujinama

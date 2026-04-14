@@ -3,7 +3,7 @@
 Project context is available under ./context:
 
 - [Overview](./context/overview.md)
-- [Requirements](./context/requirements_202604132115.md)
+- [Requirements](./context/requirements.md)
 - [Architecture](./context/architecture.md)
 
 ## Prerequisites
