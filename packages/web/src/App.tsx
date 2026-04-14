@@ -16,7 +16,10 @@ function AppShell() {
   }
 
   return (
-    <div className="flex flex-col" style={{ minHeight: "100dvh", maxWidth: "600px", margin: "0 auto" }}>
+    <div
+      className="flex flex-col"
+      style={{ minHeight: "100dvh", maxWidth: "600px", margin: "0 auto" }}
+    >
       {/* Sticky header */}
       <Header onRouteClick={handleRouteClick} />
 

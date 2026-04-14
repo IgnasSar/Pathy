@@ -40,8 +40,12 @@ export function PlaceList({ places, loading, error, total }: PlaceListProps) {
     return (
       <div className="flex flex-col items-center justify-center px-8 py-16 text-center">
         <div className="mb-4 text-5xl">⚠️</div>
-        <p className="font-semibold mb-1" style={{ color: "rgb(255 69 58)" }}>Klaida</p>
-        <p className="text-sm" style={{ color: "rgb(130 145 170)" }}>{error}</p>
+        <p className="font-semibold mb-1" style={{ color: "rgb(255 69 58)" }}>
+          Klaida
+        </p>
+        <p className="text-sm" style={{ color: "rgb(130 145 170)" }}>
+          {error}
+        </p>
       </div>
     );
   }
@@ -50,7 +54,9 @@ export function PlaceList({ places, loading, error, total }: PlaceListProps) {
     return (
       <div className="flex flex-col items-center justify-center px-8 py-16 text-center">
         <div className="mb-4 text-5xl">🔍</div>
-        <p className="font-semibold mb-1" style={{ color: "rgb(230 236 246)" }}>Vietų nerasta</p>
+        <p className="font-semibold mb-1" style={{ color: "rgb(230 236 246)" }}>
+          Vietų nerasta
+        </p>
         <p className="text-sm" style={{ color: "rgb(130 145 170)" }}>
           Pabandykite pakeisti paieškos žodžius arba filtrus.
         </p>
@@ -62,7 +68,10 @@ export function PlaceList({ places, loading, error, total }: PlaceListProps) {
     <div className="px-4 pb-24">
       {/* Result count */}
       <p className="mb-3 text-xs" style={{ color: "rgb(130 145 170)" }}>
-        Rasta vietų: <span className="font-semibold" style={{ color: "rgb(230 236 246)" }}>{total}</span>
+        Rasta vietų:{" "}
+        <span className="font-semibold" style={{ color: "rgb(230 236 246)" }}>
+          {total}
+        </span>
       </p>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {places.map((place) => (

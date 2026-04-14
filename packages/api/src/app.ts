@@ -107,9 +107,9 @@ function getPlaceSummary(
 
 function getPlaceFilters(): PlaceFiltersResponse {
   return {
-    categories: Array.from(
-      new Set(mockPlaces.map((place) => place.category)),
-    ).sort((left, right) => left.localeCompare(right, "lt")) as PlaceCategory[],
+    categories: PLACE_CATEGORIES.filter((category) =>
+      mockPlaces.some((place) => place.category === category),
+    ) as PlaceCategory[],
     regions: Array.from(new Set(mockPlaces.map((place) => place.region))).sort(
       (left, right) => left.localeCompare(right, "lt"),
     ),

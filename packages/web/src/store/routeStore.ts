@@ -33,7 +33,8 @@ export interface RouteStore {
 const RouteContext = createContext<RouteStore | null>(null);
 
 export function RouteStoreProvider({ children }: { children: ReactNode }) {
-  const [selectedPlaces, setSelectedPlaces] = useState<PlaceSummary[]>(loadFromSession);
+  const [selectedPlaces, setSelectedPlaces] =
+    useState<PlaceSummary[]>(loadFromSession);
 
   useEffect(() => {
     sessionStorage.setItem(SESSION_KEY, JSON.stringify(selectedPlaces));
@@ -43,11 +44,17 @@ export function RouteStoreProvider({ children }: { children: ReactNode }) {
     let result: { success: boolean; message?: string } = { success: false };
     setSelectedPlaces((prev) => {
       if (prev.some((p) => p.id === place.id)) {
-        result = { success: false, message: "Ši vieta jau pridėta į maršrutą." };
+        result = {
+          success: false,
+          message: "Ši vieta jau pridėta į maršrutą.",
+        };
         return prev;
       }
       if (prev.length >= MAX_PLACES) {
-        result = { success: false, message: `Maršrute gali būti daugiausiai ${MAX_PLACES} vietos.` };
+        result = {
+          success: false,
+          message: `Maršrute gali būti daugiausiai ${MAX_PLACES} vietos.`,
+        };
         return prev;
       }
       result = { success: true };
@@ -79,7 +86,14 @@ export function RouteStoreProvider({ children }: { children: ReactNode }) {
   return createElement(
     RouteContext.Provider,
     {
-      value: { selectedPlaces, addPlace, removePlace, hasPlace, reorderPlaces, clearPlaces },
+      value: {
+        selectedPlaces,
+        addPlace,
+        removePlace,
+        hasPlace,
+        reorderPlaces,
+        clearPlaces,
+      },
     },
     children,
   );
@@ -87,6 +101,7 @@ export function RouteStoreProvider({ children }: { children: ReactNode }) {
 
 export function useRouteStore(): RouteStore {
   const ctx = useContext(RouteContext);
-  if (!ctx) throw new Error("useRouteStore must be used inside RouteStoreProvider");
+  if (!ctx)
+    throw new Error("useRouteStore must be used inside RouteStoreProvider");
   return ctx;
 }

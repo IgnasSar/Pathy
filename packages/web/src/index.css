@@ -23,7 +23,9 @@
     box-sizing: border-box;
   }
 
-  html, body, #root {
+  html,
+  body,
+  #root {
     margin: 0;
     padding: 0;
     min-height: 100dvh;
@@ -34,7 +36,10 @@
     overscroll-behavior: none;
   }
 
-  input, button, select, textarea {
+  input,
+  button,
+  select,
+  textarea {
     font-family: inherit;
   }
 }
@@ -47,7 +52,9 @@
     border-radius: var(--radius-card);
     box-shadow: var(--shadow-card);
     overflow: hidden;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.15s ease;
   }
 
   .card:hover {
@@ -166,18 +173,72 @@
     font-weight: 600;
     text-transform: capitalize;
     letter-spacing: 0.01em;
+    border: 1px solid rgb(255 255 255 / 0.18);
+    background: rgb(12 16 24 / 0.78);
+    box-shadow: 0 10px 24px rgb(0 0 0 / 0.35);
+    backdrop-filter: blur(10px);
+    text-shadow: 0 1px 2px rgb(0 0 0 / 0.45);
   }
 
-  .badge-museum   { background: rgb(168 100 241 / 0.2); color: #c084fc; }
-  .badge-castle   { background: rgb(251 146 60 / 0.2);  color: #fb923c; }
-  .badge-nature   { background: rgb(34 197 94 / 0.2);   color: #4ade80; }
-  .badge-viewpoint{ background: rgb(96 165 250 / 0.2);  color: #60a5fa; }
-  .badge-park     { background: rgb(52 211 153 / 0.2);  color: #34d399; }
-  .badge-landmark { background: rgb(251 191 36 / 0.2);  color: #fbbf24; }
+  .badge-museum {
+    background: linear-gradient(135deg, rgb(168 100 241 / 0.5), rgb(12 16 24 / 0.9));
+    border-color: rgb(192 132 252 / 0.5);
+    color: #f3e8ff;
+  }
+  .badge-castle {
+    background: linear-gradient(135deg, rgb(251 146 60 / 0.52), rgb(12 16 24 / 0.9));
+    border-color: rgb(251 146 60 / 0.5);
+    color: #ffedd5;
+  }
+  .badge-church {
+    background: linear-gradient(135deg, rgb(96 165 250 / 0.5), rgb(12 16 24 / 0.9));
+    border-color: rgb(147 197 253 / 0.5);
+    color: #e0f2fe;
+  }
+  .badge-viewpoint {
+    background: linear-gradient(135deg, rgb(56 189 248 / 0.5), rgb(12 16 24 / 0.9));
+    border-color: rgb(103 232 249 / 0.5);
+    color: #ecfeff;
+  }
+  .badge-nature {
+    background: linear-gradient(135deg, rgb(34 197 94 / 0.5), rgb(12 16 24 / 0.9));
+    border-color: rgb(74 222 128 / 0.5);
+    color: #dcfce7;
+  }
+  .badge-park {
+    background: linear-gradient(135deg, rgb(52 211 153 / 0.5), rgb(12 16 24 / 0.9));
+    border-color: rgb(52 211 153 / 0.5);
+    color: #d1fae5;
+  }
+  .badge-memorial {
+    background: linear-gradient(135deg, rgb(244 114 182 / 0.5), rgb(12 16 24 / 0.9));
+    border-color: rgb(249 168 212 / 0.5);
+    color: #fdf2f8;
+  }
+  .badge-archaeology {
+    background: linear-gradient(135deg, rgb(217 119 6 / 0.52), rgb(12 16 24 / 0.9));
+    border-color: rgb(251 191 36 / 0.5);
+    color: #fef3c7;
+  }
+  .badge-street-art {
+    background: linear-gradient(135deg, rgb(236 72 153 / 0.52), rgb(12 16 24 / 0.9));
+    border-color: rgb(244 114 182 / 0.5);
+    color: #fdf2f8;
+  }
+  .badge-landmark {
+    background: linear-gradient(135deg, rgb(251 191 36 / 0.52), rgb(12 16 24 / 0.9));
+    border-color: rgb(251 191 36 / 0.5);
+    color: #fef3c7;
+  }
 
   /* ── Scrollbar ──────────────────────────────────────── */
-  .scrollbar-hide::-webkit-scrollbar { display: none; }
-  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 
   /* ── Skeleton ───────────────────────────────────────── */
   .skeleton {
@@ -193,8 +254,12 @@
   }
 
   @keyframes shimmer {
-    0%   { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
   }
 
   /* ── Bottom safe area ───────────────────────────────── */

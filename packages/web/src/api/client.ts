@@ -12,7 +12,8 @@ const BASE = "/api";
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(`${BASE}${path}`);
   const data = (await res.json()) as T;
-  if (!res.ok) throw new Error((data as { error?: string }).error ?? "Request failed");
+  if (!res.ok)
+    throw new Error((data as { error?: string }).error ?? "Request failed");
   return data;
 }
 
@@ -23,7 +24,8 @@ async function post<T>(path: string, body: unknown): Promise<T> {
     body: JSON.stringify(body),
   });
   const data = (await res.json()) as T;
-  if (!res.ok) throw new Error((data as { error?: string }).error ?? "Request failed");
+  if (!res.ok)
+    throw new Error((data as { error?: string }).error ?? "Request failed");
   return data;
 }
 
@@ -38,10 +40,20 @@ export interface PlacesQuery {
   limit?: number;
 }
 
-function buildQueryString(params: Record<string, string | number | undefined>): string {
-  const entries = Object.entries(params).filter(([, v]) => v !== undefined) as [string, string | number][];
+function buildQueryString(
+  params: Record<string, string | number | undefined>,
+): string {
+  const entries = Object.entries(params).filter(([, v]) => v !== undefined) as [
+    string,
+    string | number,
+  ][];
   if (entries.length === 0) return "";
-  return "?" + entries.map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join("&");
+  return (
+    "?" +
+    entries
+      .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+      .join("&")
+  );
 }
 
 export const api = {
@@ -63,5 +75,6 @@ export const api = {
 
   placeDetail: (id: string) => get<PlaceDetailResponse>(`/places/${id}`),
 
-  routePreview: (req: RoutePreviewRequest) => post<RoutePreviewResponse>("/route-preview", req),
+  routePreview: (req: RoutePreviewRequest) =>
+    post<RoutePreviewResponse>("/route-preview", req),
 };

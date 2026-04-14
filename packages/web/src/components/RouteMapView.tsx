@@ -8,7 +8,8 @@ import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 
-delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl;
+delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)
+  ._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconUrl: markerIcon,
   iconRetinaUrl: markerIcon2x,
@@ -56,7 +57,8 @@ export function RouteMapView({ places, routePath }: RouteMapViewProps) {
     });
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      attribution:
+        '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
       maxZoom: 19,
     }).addTo(map);
 
@@ -79,9 +81,7 @@ export function RouteMapView({ places, routePath }: RouteMapViewProps) {
 
     group.clearLayers();
 
-    const validPlaces = places.filter(
-      (p) => p.coordinates !== undefined,
-    );
+    const validPlaces = places.filter((p) => p.coordinates !== undefined);
 
     if (validPlaces.length === 0) {
       map.setView(LITHUANIA_CENTER, DEFAULT_ZOOM);
@@ -156,7 +156,10 @@ export function RouteMapView({ places, routePath }: RouteMapViewProps) {
   const hasCoords = places.some((p) => p.coordinates !== undefined);
 
   return (
-    <div className="relative" style={{ height: "calc(100dvh - 230px)", minHeight: "320px" }}>
+    <div
+      className="relative"
+      style={{ height: "calc(100dvh - 230px)", minHeight: "320px", zIndex: 0 }}
+    >
       <div ref={containerRef} style={{ width: "100%", height: "100%" }} />
 
       {/* No-coords overlay */}
@@ -170,7 +173,10 @@ export function RouteMapView({ places, routePath }: RouteMapViewProps) {
           }}
         >
           <span style={{ fontSize: "2.5rem" }}>🗺️</span>
-          <p className="text-sm font-medium" style={{ color: "rgb(130 145 170)" }}>
+          <p
+            className="text-sm font-medium"
+            style={{ color: "rgb(130 145 170)" }}
+          >
             Koordinatės neprieinamos šioms vietoms.
           </p>
         </div>
@@ -192,9 +198,17 @@ export function RouteMapView({ places, routePath }: RouteMapViewProps) {
           }}
         >
           <span style={{ color: "#34c759", marginRight: 2 }}>●</span> Pradžia
-          <span style={{ color: "#ff453a", marginRight: 2, marginLeft: 6 }}>●</span> Pabaiga
+          <span style={{ color: "#ff453a", marginRight: 2, marginLeft: 6 }}>
+            ●
+          </span>{" "}
+          Pabaiga
           {places.length > 2 && (
-            <><span style={{ color: "#5aa0ff", marginRight: 2, marginLeft: 6 }}>●</span> Tarpinė</>
+            <>
+              <span style={{ color: "#5aa0ff", marginRight: 2, marginLeft: 6 }}>
+                ●
+              </span>{" "}
+              Tarpinė
+            </>
           )}
         </div>
       )}

@@ -1,9 +1,13 @@
 export const PLACE_CATEGORIES = [
   "museum",
   "castle",
-  "nature",
+  "church",
   "viewpoint",
+  "nature",
   "park",
+  "memorial",
+  "archaeology",
+  "street-art",
   "landmark",
 ] as const;
 
