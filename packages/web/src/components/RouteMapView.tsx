@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import type { PlaceSummary } from "@pathy/shared";
+import type { Coordinates, PlaceSummary } from "@pathy/shared";
 
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -17,6 +17,7 @@ L.Icon.Default.mergeOptions({
 
 interface RouteMapViewProps {
   places: PlaceSummary[];
+  routePath?: Coordinates[];
 }
 
 const LITHUANIA_CENTER: L.LatLngTuple = [55.1694, 23.8813];
@@ -39,7 +40,7 @@ function makeNumberedIcon(n: number, isFirst: boolean, isLast: boolean) {
   });
 }
 
-export function RouteMapView({ places }: RouteMapViewProps) {
+export function RouteMapView({ places, routePath }: RouteMapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const layerGroupRef = useRef<L.LayerGroup | null>(null);
@@ -118,8 +119,18 @@ export function RouteMapView({ places }: RouteMapViewProps) {
       group.addLayer(marker);
     });
 
-    // Dashed polyline connecting stops
-    if (latlngs.length >= 2) {
+    // Draw route path if provided, otherwise dashed polyline connecting stops
+    if (routePath && routePath.length >= 2) {
+      const pathLatLngs: L.LatLngTuple[] = routePath.map((c) => [c.lat, c.lng]);
+      group.addLayer(
+        L.polyline(pathLatLngs, {
+          color: "#34c759",
+          weight: 4,
+          opacity: 0.9,
+        }),
+      );
+      map.fitBounds(L.latLngBounds(pathLatLngs), { padding: [48, 48] });
+    } else if (latlngs.length >= 2) {
       group.addLayer(
         L.polyline(latlngs, {
           color: "#34c759",
@@ -128,11 +139,13 @@ export function RouteMapView({ places }: RouteMapViewProps) {
           dashArray: "8 6",
         }),
       );
+      map.fitBounds(L.latLngBounds(latlngs), { padding: [48, 48] });
+    } else if (latlngs.length === 1) {
+      map.setView(latlngs[0], 12);
     }
 
-    map.fitBounds(L.latLngBounds(latlngs), { padding: [48, 48] });
     setTimeout(() => map.invalidateSize(), 80);
-  }, [places]);
+  }, [places, routePath]);
 
   // Invalidate size on mount (tab just switched)
   useEffect(() => {

@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import type { RoutePreviewResponse, TransportType } from "@pathy/shared";
 import { useRouteStore } from "../store/routeStore";
 import { RouteMapView } from "../components/RouteMapView";
+import { api } from "../api/client";
 
 type ViewMode = "list" | "map";
 
@@ -14,6 +16,36 @@ export function RouteView() {
   const { selectedPlaces, removePlace, reorderPlaces, clearPlaces } = useRouteStore();
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [transport, setTransport] = useState<string | null>(null);
+
+  const [generating, setGenerating] = useState(false);
+  const [routeData, setRouteData] = useState<RoutePreviewResponse | null>(null);
+  const [genError, setGenError] = useState<string | null>(null);
+
+  // Clear route data if user adds/removes elements
+  useEffect(() => {
+    setRouteData(null);
+    setGenError(null);
+  }, [selectedPlaces]);
+
+  async function handleGenerateRoute() {
+    if (!transport || selectedPlaces.length < 2) return;
+    setGenerating(true);
+    setGenError(null);
+    setRouteData(null);
+    try {
+      const res = await api.routePreview({
+        placeIds: selectedPlaces.map((p) => p.id),
+        transportType: transport as TransportType,
+        // Note: Could add origin here if location tracked
+      });
+      setRouteData(res);
+      setViewMode("map"); // auto-switch to map
+    } catch (err) {
+      setGenError(err instanceof Error ? err.message : "Nepavyko sugeneruoti maršruto.");
+    } finally {
+      setGenerating(false);
+    }
+  }
 
   /* ── Empty state ──────────────────────────────────────────────────── */
   if (selectedPlaces.length === 0) {
@@ -70,6 +102,24 @@ export function RouteView() {
           Išvalyti viską
         </button>
       </div>
+
+      {/* ── Route Metadata ───────────────────────────────────────────── */}
+      {routeData && (
+        <div className="mx-4 mb-4 flex items-center justify-between rounded-xl px-4 py-3" style={{ background: "rgb(52 199 89 / 0.15)", border: "1px solid rgb(52 199 89 / 0.3)" }}>
+          <div>
+            <p className="text-xs font-semibold text-[rgb(52,199,89)]">Atstumas</p>
+            <p className="text-sm font-bold text-white">{routeData.totals.distanceKm} km</p>
+          </div>
+          <div className="text-right">
+            <p className="text-xs font-semibold text-[rgb(52,199,89)]">Trukmė</p>
+            <p className="text-sm font-bold text-white">
+              {routeData.totals.durationMinutes >= 60
+                ? `${Math.floor(routeData.totals.durationMinutes / 60)}h ${routeData.totals.durationMinutes % 60}m`
+                : `${routeData.totals.durationMinutes}m`}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* ── List / Map toggle pill ───────────────────────────────────── */}
       <div className="mx-4 mb-4 flex rounded-xl p-1" style={{ background: "rgb(22 26 35)", border: "1px solid rgb(40 48 64)" }}>
@@ -195,7 +245,7 @@ export function RouteView() {
       {viewMode === "map" && (
         <div className="px-4">
           <div className="overflow-hidden rounded-2xl" style={{ border: "1px solid rgb(40 48 64)" }}>
-            <RouteMapView places={selectedPlaces} />
+            <RouteMapView places={selectedPlaces} routePath={routeData?.path} />
           </div>
         </div>
       )}
@@ -237,22 +287,37 @@ export function RouteView() {
             </p>
           )}
 
+          {/* Error hint */}
+          {genError && (
+            <div className="mt-3 rounded-xl px-3 py-2 text-xs font-medium" style={{ background: "rgb(255 69 58 / 0.15)", color: "rgb(255 69 58)", border: "1px solid rgb(255 69 58 / 0.3)" }}>
+              {genError}
+            </div>
+          )}
+
           {/* Generate CTA */}
           <button
             id="generate-route-btn"
-            disabled={!transport}
+            disabled={!transport || generating}
+            onClick={handleGenerateRoute}
             className="btn btn-primary mt-4 w-full py-3 text-base"
             style={
-              !transport
+              !transport || generating
                 ? { opacity: 0.45, cursor: "not-allowed" }
                 : {}
             }
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
-              <line x1="8" y1="2" x2="8" y2="18" /><line x1="16" y1="6" x2="16" y2="22" />
-            </svg>
-            Generuoti maršrutą
+            {generating ? (
+              <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
+                <line x1="8" y1="2" x2="8" y2="18" /><line x1="16" y1="6" x2="16" y2="22" />
+              </svg>
+            )}
+            {generating ? "Skaičiuojama..." : "Generuoti maršrutą"}
           </button>
         </div>
       )}

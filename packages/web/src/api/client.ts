@@ -3,12 +3,25 @@ import type {
   PlaceDetailResponse,
   PlaceFiltersResponse,
   PlacesResponse,
+  RoutePreviewRequest,
+  RoutePreviewResponse,
 } from "@pathy/shared";
 
 const BASE = "/api";
 
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(`${BASE}${path}`);
+  const data = (await res.json()) as T;
+  if (!res.ok) throw new Error((data as { error?: string }).error ?? "Request failed");
+  return data;
+}
+
+async function post<T>(path: string, body: unknown): Promise<T> {
+  const res = await fetch(`${BASE}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
   const data = (await res.json()) as T;
   if (!res.ok) throw new Error((data as { error?: string }).error ?? "Request failed");
   return data;
@@ -49,4 +62,6 @@ export const api = {
   },
 
   placeDetail: (id: string) => get<PlaceDetailResponse>(`/places/${id}`),
+
+  routePreview: (req: RoutePreviewRequest) => post<RoutePreviewResponse>("/route-preview", req),
 };
