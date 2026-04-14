@@ -5,7 +5,7 @@
   "description": "Pathy monorepo",
   "packageManager": "pnpm@10.33.0",
   "scripts": {
-    "dev": "concurrently --names web,api --prefix-colors cyan,magenta \"pnpm dev:web\" \"pnpm dev:api\"",
+    "dev": "pnpm run build:shared && concurrently --names web,api --prefix-colors cyan,magenta \"pnpm dev:web\" \"pnpm dev:api\"",
     "dev:web": "pnpm --dir packages/web dev",
     "dev:api": "pnpm --dir packages/api dev",
     "build:web": "pnpm --dir packages/web build",
