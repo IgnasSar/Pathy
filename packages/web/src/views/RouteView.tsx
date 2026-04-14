@@ -5,9 +5,9 @@ import { RouteMapView } from "../components/RouteMapView";
 type ViewMode = "list" | "map";
 
 const TRANSPORTS: { key: string; emoji: string; label: string }[] = [
-  { key: "car",  emoji: "🚗", label: "Automobilis" },
-  { key: "bike", emoji: "🚲", label: "Dviratis"    },
-  { key: "walk", emoji: "🚶", label: "Pėsčiomis"   },
+  { key: "car", emoji: "🚗", label: "Automobilis" },
+  { key: "bike", emoji: "🚲", label: "Dviratis" },
+  { key: "walk", emoji: "🚶", label: "Pėsčiomis" },
 ];
 
 export function RouteView() {
@@ -84,8 +84,8 @@ export function RouteView() {
           }}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-            <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
-            <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+            <line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" />
+            <line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" />
           </svg>
           Sąrašas
         </button>
@@ -100,8 +100,8 @@ export function RouteView() {
           }}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
-            <line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/>
+            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
+            <line x1="8" y1="2" x2="8" y2="18" /><line x1="16" y1="6" x2="16" y2="22" />
           </svg>
           Žemėlapis
         </button>
@@ -160,7 +160,7 @@ export function RouteView() {
                   style={{ color: "rgb(130 145 170)" }}
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                    <polyline points="18 15 12 9 6 15"/>
+                    <polyline points="18 15 12 9 6 15" />
                   </svg>
                 </button>
                 <button
@@ -170,7 +170,7 @@ export function RouteView() {
                   style={{ color: "rgb(130 145 170)" }}
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                    <polyline points="6 9 12 15 18 9"/>
+                    <polyline points="6 9 12 15 18 9" />
                   </svg>
                 </button>
               </div>
@@ -183,7 +183,7 @@ export function RouteView() {
                 style={{ color: "rgb(255 69 58)", background: "rgb(255 69 58 / 0.1)" }}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                  <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
               </button>
             </div>
@@ -249,8 +249,8 @@ export function RouteView() {
             }
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/>
-              <line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/>
+              <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
+              <line x1="8" y1="2" x2="8" y2="18" /><line x1="16" y1="6" x2="16" y2="22" />
             </svg>
             Generuoti maršrutą
           </button>
