@@ -158,11 +158,14 @@ export type PlacesQuery = {
   origin?: Coordinates;
   excludeId?: string;
   limit?: number;
+  offset?: number;
 };
 
 export type PlacesResponse = {
   items: PlaceSummary[];
   total: number;
+  limit: number;
+  offset: number;
 };
 
 export type PlaceDetailResponse = {

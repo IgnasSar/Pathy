@@ -6,6 +6,9 @@ interface PlaceListProps {
   loading: boolean;
   error: string | null;
   total: number;
+  hasMore: boolean;
+  loadingMore: boolean;
+  onLoadMore: () => void;
 }
 
 function SkeletonCard() {
@@ -25,7 +28,15 @@ function SkeletonCard() {
   );
 }
 
-export function PlaceList({ places, loading, error, total }: PlaceListProps) {
+export function PlaceList({
+  places,
+  loading,
+  error,
+  total,
+  hasMore,
+  loadingMore,
+  onLoadMore,
+}: PlaceListProps) {
   if (loading) {
     return (
       <div className="grid grid-cols-1 gap-4 px-4 pb-4 sm:grid-cols-2">
@@ -68,16 +79,28 @@ export function PlaceList({ places, loading, error, total }: PlaceListProps) {
     <div className="px-4 pb-24">
       {/* Result count */}
       <p className="mb-3 text-xs" style={{ color: "rgb(130 145 170)" }}>
-        Rasta vietų:{" "}
+        Rodoma {places.length} iš{" "}
         <span className="font-semibold" style={{ color: "rgb(230 236 246)" }}>
           {total}
-        </span>
+        </span>{" "}
+        vietų
       </p>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {places.map((place) => (
           <PlaceCard key={place.id} place={place} />
         ))}
       </div>
+
+      {hasMore && (
+        <button
+          type="button"
+          className="btn btn-secondary mt-4 w-full"
+          onClick={onLoadMore}
+          disabled={loadingMore}
+        >
+          {loadingMore ? "Kraunama..." : "Rodyti daugiau"}
+        </button>
+      )}
     </div>
   );
 }

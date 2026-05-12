@@ -33,6 +33,7 @@ type PlacesQuerystring = {
   lng?: string;
   excludeId?: string;
   limit?: string;
+  offset?: string;
 };
 
 function parseOptionalNumber(value: string | undefined) {
@@ -120,6 +121,14 @@ function getPlacesQueryError(query: PlacesQuerystring) {
     }
   }
 
+  if (query.offset !== undefined) {
+    const offset = parseOptionalNumber(query.offset);
+
+    if (offset === undefined || offset < 0) {
+      return "offset must be zero or a positive number.";
+    }
+  }
+
   return undefined;
 }
 
@@ -203,6 +212,7 @@ export function buildApp() {
         origin: getOriginFromQuery(request.query),
         excludeId: request.query.excludeId,
         limit: parseOptionalNumber(request.query.limit),
+        offset: parseOptionalNumber(request.query.offset),
       });
 
       return response;

@@ -38,6 +38,7 @@ export interface PlacesQuery {
   lng?: number;
   excludeId?: string;
   limit?: number;
+  offset?: number;
 }
 
 function buildQueryString(
@@ -69,6 +70,7 @@ export const api = {
       lng: query.lng,
       excludeId: query.excludeId,
       limit: query.limit,
+      offset: query.offset,
     });
     return get<PlacesResponse>(`/places${qs}`);
   },

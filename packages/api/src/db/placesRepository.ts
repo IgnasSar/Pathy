@@ -20,6 +20,7 @@ export type ListPlacesFilters = {
   origin?: Coordinates;
   excludeId?: string;
   limit?: number;
+  offset?: number;
 };
 
 type PlaceRow = {
@@ -166,10 +167,10 @@ export async function listPlaces(filters: ListPlacesFilters) {
   const orderSql = filters.origin
     ? "order by distance_km asc"
     : "order by p.name asc";
-  const limitSql =
-    filters.limit !== undefined
-      ? `limit ${addValue(Math.trunc(filters.limit))}`
-      : "";
+  const countValues = [...values];
+  const limit = Math.trunc(filters.limit ?? 24);
+  const offset = Math.trunc(filters.offset ?? 0);
+  const limitSql = `limit ${addValue(limit)} offset ${addValue(offset)}`;
 
   const result = await pool.query<PlaceRow>(
     `
@@ -184,12 +185,14 @@ export async function listPlaces(filters: ListPlacesFilters) {
 
   const countResult = await pool.query<{ count: string }>(
     `select count(*) from places p ${whereSql}`,
-    values.slice(0, filters.limit !== undefined ? -1 : undefined),
+    countValues,
   );
 
   return {
     items: result.rows.map(toSummary),
     total: Number(countResult.rows[0].count),
+    limit,
+    offset,
   };
 }
 

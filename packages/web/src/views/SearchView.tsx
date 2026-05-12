@@ -32,6 +32,7 @@ export function SearchView() {
   const [places, setPlaces] = useState<PlaceSummary[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Load filters once
@@ -42,26 +43,40 @@ export function SearchView() {
       .catch(() => {});
   }, []);
 
+  const pageSize = 24;
+
   // Load places whenever filters change
-  const fetchPlaces = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await api.places({
-        query: query.trim() || undefined,
-        category: selectedCategory ?? undefined,
-        radiusKm: location && selectedRadius ? selectedRadius : undefined,
-        lat: location?.lat,
-        lng: location?.lng,
-      });
-      setPlaces(res.items);
-      setTotal(res.total);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Nepavyko gauti vietų.");
-    } finally {
-      setLoading(false);
-    }
-  }, [query, selectedCategory, selectedRadius, location]);
+  const fetchPlaces = useCallback(
+    async (offset = 0) => {
+      if (offset === 0) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
+      setError(null);
+      try {
+        const res = await api.places({
+          query: query.trim() || undefined,
+          category: selectedCategory ?? undefined,
+          radiusKm: location && selectedRadius ? selectedRadius : undefined,
+          lat: location?.lat,
+          lng: location?.lng,
+          limit: pageSize,
+          offset,
+        });
+        setPlaces((currentPlaces) =>
+          offset === 0 ? res.items : [...currentPlaces, ...res.items],
+        );
+        setTotal(res.total);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Nepavyko gauti vietų.");
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+      }
+    },
+    [query, selectedCategory, selectedRadius, location],
+  );
 
   useEffect(() => {
     void fetchPlaces();
@@ -158,6 +173,9 @@ export function SearchView() {
         loading={loading}
         error={error}
         total={total}
+        hasMore={places.length < total}
+        loadingMore={loadingMore}
+        onLoadMore={() => void fetchPlaces(places.length)}
       />
     </div>
   );
