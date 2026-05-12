@@ -1,4 +1,4 @@
-packages/api/src/lib/ors.tsimport type { Coordinates, TransportType } from "@pathy/shared";
+import type { Coordinates, TransportType } from "@pathy/shared";
 
 const ORS_BASE = "https://api.openrouteservice.org/v2/directions";
 
