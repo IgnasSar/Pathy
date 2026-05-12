@@ -79,7 +79,7 @@ export function PlaceList({
     <div className="px-4 pb-24">
       {/* Result count */}
       <p className="mb-3 text-xs" style={{ color: "rgb(130 145 170)" }}>
-        Rodoma {places.length} iš{" "}
+        Rasta{" "}
         <span className="font-semibold" style={{ color: "rgb(230 236 246)" }}>
           {total}
         </span>{" "}

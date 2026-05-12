@@ -592,7 +592,7 @@ function ResultPanel({
       {subtypeName && (
         <section>
           <p className="mb-3 text-xs" style={{ color: "rgb(130 145 170)" }}>
-            Rasta {result.items.length} iš{" "}
+            Rasta{" "}
             <span
               className="font-semibold"
               style={{ color: "rgb(230 236 246)" }}
