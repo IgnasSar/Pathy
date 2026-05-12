@@ -23,7 +23,6 @@ import {
 import {
   estimateDurationMinutes,
   haversineKm,
-  optimizeRouteOrder,
   roundToOneDecimal,
 } from "./lib/geo.js";
 import { recognizeImage } from "./lib/mistral.js";
@@ -318,7 +317,7 @@ export function buildApp() {
       return reply.code(404).send(errorResponse);
     }
 
-    const resolvedPlaces = optimizeRouteOrder(routePlaces as PlaceDetail[]);
+    const resolvedPlaces = routePlaces as PlaceDetail[];
     const waypoints = getRoutePath(body.origin, resolvedPlaces);
 
     let path: Coordinates[] = waypoints;

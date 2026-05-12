@@ -8,6 +8,7 @@ import {
 } from "react";
 import { createElement } from "react";
 import type { PlaceSummary } from "@pathy/shared";
+import { optimizePlacesOrder } from "../utils/geo";
 
 const MAX_PLACES = 10;
 const SESSION_KEY = "pathy_route_places_v2";
@@ -27,7 +28,6 @@ export interface RouteStore {
   removePlace: (id: string) => void;
   hasPlace: (id: string) => boolean;
   reorderPlaces: (from: number, to: number) => void;
-  setPlaces: (places: PlaceSummary[]) => void;
   clearPlaces: () => void;
 }
 
@@ -59,7 +59,7 @@ export function RouteStoreProvider({ children }: { children: ReactNode }) {
         return prev;
       }
       result = { success: true };
-      return [...prev, place];
+      return optimizePlacesOrder([...prev, place]);
     });
     return result;
   }, []);
@@ -82,10 +82,6 @@ export function RouteStoreProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const setPlaces = useCallback((places: PlaceSummary[]) => {
-    setSelectedPlaces(places);
-  }, []);
-
   const clearPlaces = useCallback(() => setSelectedPlaces([]), []);
 
   return createElement(
@@ -97,7 +93,6 @@ export function RouteStoreProvider({ children }: { children: ReactNode }) {
         removePlace,
         hasPlace,
         reorderPlaces,
-        setPlaces,
         clearPlaces,
       },
     },

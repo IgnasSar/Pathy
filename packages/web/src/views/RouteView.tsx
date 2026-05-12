@@ -13,7 +13,7 @@ const TRANSPORTS: { key: string; emoji: string; label: string }[] = [
 ];
 
 export function RouteView() {
-  const { selectedPlaces, removePlace, reorderPlaces, setPlaces, clearPlaces } =
+  const { selectedPlaces, removePlace, reorderPlaces, clearPlaces } =
     useRouteStore();
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [transport, setTransport] = useState<string | null>(null);
@@ -40,11 +40,6 @@ export function RouteView() {
         // Note: Could add origin here if location tracked
       });
       setRouteData(res);
-      // Reorder the list to match the optimized stop order from the API
-      const optimized = res.stops
-        .map((stop) => selectedPlaces.find((p) => p.id === stop.id))
-        .filter((p): p is (typeof selectedPlaces)[number] => p !== undefined);
-      if (optimized.length === selectedPlaces.length) setPlaces(optimized);
       setViewMode("map"); // auto-switch to map
     } catch (err) {
       setGenError(
