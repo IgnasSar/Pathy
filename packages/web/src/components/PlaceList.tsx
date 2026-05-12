@@ -8,7 +8,7 @@ interface PlaceListProps {
   total: number;
   hasMore: boolean;
   loadingMore: boolean;
-  onLoadMore: () => void;
+  loadMoreRef: (node: HTMLDivElement | null) => void;
 }
 
 function SkeletonCard() {
@@ -35,7 +35,7 @@ export function PlaceList({
   total,
   hasMore,
   loadingMore,
-  onLoadMore,
+  loadMoreRef,
 }: PlaceListProps) {
   if (loading) {
     return (
@@ -91,16 +91,14 @@ export function PlaceList({
         ))}
       </div>
 
-      {hasMore && (
-        <button
-          type="button"
-          className="btn btn-secondary mt-4 w-full"
-          onClick={onLoadMore}
-          disabled={loadingMore}
-        >
-          {loadingMore ? "Kraunama..." : "Rodyti daugiau"}
-        </button>
-      )}
+      <div
+        ref={loadMoreRef}
+        className="py-5 text-center text-xs"
+        style={{ color: "rgb(130 145 170)" }}
+      >
+        {loadingMore && "Kraunama daugiau vietų..."}
+        {!loadingMore && !hasMore && "Pasiekėte sąrašo pabaigą"}
+      </div>
     </div>
   );
 }

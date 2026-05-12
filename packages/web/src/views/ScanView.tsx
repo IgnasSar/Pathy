@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState, type ChangeEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+} from "react";
 import type {
   Coordinates,
   PlaceSummary,
@@ -56,6 +62,10 @@ export function ScanView() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [matchesError, setMatchesError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const scanItemsLengthRef = useRef(0);
+  const matchesLoadingRef = useRef(false);
+  const loadingMoreRef = useRef(false);
+  const hasMoreRef = useRef(false);
 
   const recognizedSubtypeName =
     state.kind === "result" ? state.result.prediction.sourceSubTypeName : null;
@@ -163,6 +173,18 @@ export function ScanView() {
   }
 
   useEffect(() => {
+    if (state.kind === "result") {
+      scanItemsLengthRef.current = state.result.items.length;
+      hasMoreRef.current = state.result.items.length < state.result.total;
+    } else {
+      scanItemsLengthRef.current = 0;
+      hasMoreRef.current = false;
+    }
+    matchesLoadingRef.current = matchesLoading;
+    loadingMoreRef.current = loadingMore;
+  }, [state, matchesLoading, loadingMore]);
+
+  useEffect(() => {
     if (state.kind !== "result" || !recognizedSubtypeName) return;
 
     let ignore = false;
@@ -208,8 +230,8 @@ export function ScanView() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recognizedSubtypeName, selectedRadius, location?.lat, location?.lng]);
 
-  async function handleLoadMore() {
-    if (state.kind !== "result" || !recognizedSubtypeName) return;
+  const handleLoadMore = useCallback(async () => {
+    if (!recognizedSubtypeName) return;
 
     setLoadingMore(true);
     setMatchesError(null);
@@ -219,7 +241,7 @@ export function ScanView() {
         sourceSubTypeName: recognizedSubtypeName,
         ...getMatchFilters(),
         limit: PAGE_SIZE,
-        offset: state.result.items.length,
+        offset: scanItemsLengthRef.current,
       });
 
       setState((current) => {
@@ -240,7 +262,34 @@ export function ScanView() {
     } finally {
       setLoadingMore(false);
     }
-  }
+  }, [recognizedSubtypeName, selectedRadius, location]);
+
+  const loadMoreRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (node === null) return;
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          const [entry] = entries;
+
+          if (
+            entry.isIntersecting &&
+            hasMoreRef.current &&
+            !matchesLoadingRef.current &&
+            !loadingMoreRef.current
+          ) {
+            void handleLoadMore();
+          }
+        },
+        { rootMargin: "600px 0px" },
+      );
+
+      observer.observe(node);
+
+      return () => observer.disconnect();
+    },
+    [handleLoadMore],
+  );
 
   const dataUrl = state.kind === "idle" ? null : state.dataUrl;
 
@@ -390,7 +439,7 @@ export function ScanView() {
           loadingMore={loadingMore}
           matchesError={matchesError}
           radiusKm={location ? selectedRadius : null}
-          onLoadMore={handleLoadMore}
+          loadMoreRef={loadMoreRef}
         />
       )}
     </div>
@@ -524,14 +573,14 @@ function ResultPanel({
   loadingMore,
   matchesError,
   radiusKm,
-  onLoadMore,
+  loadMoreRef,
 }: {
   result: ScanResult;
   matchesLoading: boolean;
   loadingMore: boolean;
   matchesError: string | null;
   radiusKm: RadiusOptionKm | null;
-  onLoadMore: () => void;
+  loadMoreRef: (node: HTMLDivElement | null) => void;
 }) {
   const subtypeName = result.prediction.sourceSubTypeName;
 
@@ -622,16 +671,17 @@ function ResultPanel({
                 ))}
               </div>
 
-              {result.items.length < result.total && (
-                <button
-                  type="button"
-                  className="btn btn-secondary mt-4 w-full"
-                  onClick={onLoadMore}
-                  disabled={loadingMore || matchesLoading}
-                >
-                  {loadingMore ? "Kraunama..." : "Rodyti daugiau"}
-                </button>
-              )}
+              <div
+                ref={loadMoreRef}
+                className="py-5 text-center text-xs"
+                style={{ color: "rgb(130 145 170)" }}
+              >
+                {loadingMore && "Kraunama daugiau vietų..."}
+                {!loadingMore &&
+                  !matchesLoading &&
+                  result.items.length >= result.total &&
+                  "Pasiekėte sąrašo pabaigą"}
+              </div>
             </>
           ) : (
             <div

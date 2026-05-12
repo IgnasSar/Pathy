@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type {
   PlaceCategory,
   PlaceFiltersResponse,
@@ -34,6 +34,10 @@ export function SearchView() {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const placesLengthRef = useRef(0);
+  const loadingRef = useRef(false);
+  const loadingMoreRef = useRef(false);
+  const hasMoreRef = useRef(false);
 
   // Load filters once
   useEffect(() => {
@@ -81,6 +85,40 @@ export function SearchView() {
   useEffect(() => {
     void fetchPlaces();
   }, [fetchPlaces]);
+
+  useEffect(() => {
+    placesLengthRef.current = places.length;
+    loadingRef.current = loading;
+    loadingMoreRef.current = loadingMore;
+    hasMoreRef.current = places.length < total;
+  }, [places.length, loading, loadingMore, total]);
+
+  const loadMoreRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (node === null) return;
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          const [entry] = entries;
+
+          if (
+            entry.isIntersecting &&
+            hasMoreRef.current &&
+            !loadingRef.current &&
+            !loadingMoreRef.current
+          ) {
+            void fetchPlaces(placesLengthRef.current);
+          }
+        },
+        { rootMargin: "600px 0px" },
+      );
+
+      observer.observe(node);
+
+      return () => observer.disconnect();
+    },
+    [fetchPlaces],
+  );
 
   // GPS
   function handleGpsRequest() {
@@ -168,7 +206,7 @@ export function SearchView() {
         total={total}
         hasMore={places.length < total}
         loadingMore={loadingMore}
-        onLoadMore={() => void fetchPlaces(places.length)}
+        loadMoreRef={loadMoreRef}
       />
     </div>
   );
