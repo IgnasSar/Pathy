@@ -154,6 +154,7 @@ export type PlacesQuery = {
   query?: string;
   category?: PlaceCategory;
   region?: string;
+  sourceSubTypeName?: string;
   radiusKm?: number;
   origin?: Coordinates;
   excludeId?: string;
@@ -206,6 +207,8 @@ export type RoutePreviewResponse = {
 export type RecognizeRequest = {
   imageBase64: string;
   mimeType: "image/jpeg" | "image/png" | "image/webp";
+  origin?: Coordinates;
+  radiusKm?: number;
 };
 
 export type RecognizePrediction = {

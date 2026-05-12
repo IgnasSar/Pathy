@@ -1,5 +1,11 @@
-import { useRef, useState, type ChangeEvent } from "react";
-import type { PlaceSummary, RecognizePrediction } from "@pathy/shared";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
+import type {
+  Coordinates,
+  PlaceSummary,
+  RadiusOptionKm,
+  RecognizePrediction,
+} from "@pathy/shared";
+import { RADIUS_OPTIONS_KM } from "@pathy/shared";
 import { api } from "../api/client";
 import { PlaceCard } from "../components/PlaceCard";
 
@@ -39,7 +45,47 @@ const CONFIDENCE_COLOR: Record<RecognizePrediction["confidence"], string> = {
 
 export function ScanView() {
   const [state, setState] = useState<UploadState>({ kind: "idle" });
+  const [selectedRadius, setSelectedRadius] = useState<RadiusOptionKm | null>(
+    null,
+  );
+  const [location, setLocation] = useState<Coordinates | null>(null);
+  const [gpsLoading, setGpsLoading] = useState(false);
+  const [gpsError, setGpsError] = useState<string | null>(null);
+  const [matchesLoading, setMatchesLoading] = useState(false);
+  const [matchesError, setMatchesError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const recognizedSubtypeName =
+    state.kind === "result" ? state.result.prediction.sourceSubTypeName : null;
+
+  function getMatchFilters() {
+    return {
+      lat: location?.lat,
+      lng: location?.lng,
+      radiusKm: location && selectedRadius ? selectedRadius : undefined,
+    };
+  }
+
+  function handleGpsRequest() {
+    if (!navigator.geolocation) {
+      setGpsError("Jūsų naršyklė nepalaiko GPS.");
+      return;
+    }
+
+    setGpsLoading(true);
+    setGpsError(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setGpsLoading(false);
+      },
+      () => {
+        setGpsError("Nepavyko gauti lokacijos. Patikrinkite leidimus.");
+        setGpsLoading(false);
+      },
+      { timeout: 8000 },
+    );
+  }
 
   function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -60,6 +106,7 @@ export function ScanView() {
       const dataUrl = ev.target?.result;
       if (typeof dataUrl === "string") {
         setState({ kind: "preview", file, dataUrl });
+        setMatchesError(null);
       }
     };
     reader.readAsDataURL(file);
@@ -72,11 +119,14 @@ export function ScanView() {
     if (!isAcceptedMimeType(file.type)) return;
 
     setState({ kind: "loading", dataUrl });
+    setMatchesError(null);
 
     try {
       const response = await api.recognize({
         imageBase64: dataUrl,
         mimeType: file.type,
+        origin: location ?? undefined,
+        radiusKm: location && selectedRadius ? selectedRadius : undefined,
       });
       setState({
         kind: "result",
@@ -99,8 +149,55 @@ export function ScanView() {
 
   function handleReset() {
     setState({ kind: "idle" });
+    setMatchesError(null);
     if (inputRef.current) inputRef.current.value = "";
   }
+
+  useEffect(() => {
+    if (state.kind !== "result" || !recognizedSubtypeName) return;
+
+    let ignore = false;
+    setMatchesLoading(true);
+    setMatchesError(null);
+
+    api
+      .places({
+        sourceSubTypeName: recognizedSubtypeName,
+        ...getMatchFilters(),
+        limit: 12,
+        offset: 0,
+      })
+      .then((response) => {
+        if (ignore) return;
+        setState((current) => {
+          if (current.kind !== "result") return current;
+          return {
+            ...current,
+            result: {
+              ...current.result,
+              items: response.items,
+              total: response.total,
+            },
+          };
+        });
+      })
+      .catch((err) => {
+        if (!ignore) {
+          setMatchesError(
+            err instanceof Error ? err.message : "Nepavyko atnaujinti vietų.",
+          );
+        }
+      })
+      .finally(() => {
+        if (!ignore) setMatchesLoading(false);
+      });
+
+    return () => {
+      ignore = true;
+    };
+    // Re-fetch only when distance filters or recognized subtype change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [recognizedSubtypeName, selectedRadius, location?.lat, location?.lng]);
 
   const dataUrl = state.kind === "idle" ? null : state.dataUrl;
 
@@ -179,6 +276,15 @@ export function ScanView() {
         onChange={handleFileChange}
       />
 
+      <DistanceFilter
+        selectedRadius={selectedRadius}
+        location={location}
+        gpsLoading={gpsLoading}
+        gpsError={gpsError}
+        onGpsRequest={handleGpsRequest}
+        onRadiusChange={setSelectedRadius}
+      />
+
       {(state.kind === "preview" ||
         state.kind === "result" ||
         state.kind === "error") && (
@@ -234,12 +340,159 @@ export function ScanView() {
         </div>
       )}
 
-      {state.kind === "result" && <ResultPanel result={state.result} />}
+      {state.kind === "result" && (
+        <ResultPanel
+          result={state.result}
+          matchesLoading={matchesLoading}
+          matchesError={matchesError}
+          radiusKm={location ? selectedRadius : null}
+        />
+      )}
     </div>
   );
 }
 
-function ResultPanel({ result }: { result: ScanResult }) {
+function DistanceFilter({
+  selectedRadius,
+  location,
+  gpsLoading,
+  gpsError,
+  onGpsRequest,
+  onRadiusChange,
+}: {
+  selectedRadius: RadiusOptionKm | null;
+  location: Coordinates | null;
+  gpsLoading: boolean;
+  gpsError: string | null;
+  onGpsRequest: () => void;
+  onRadiusChange: (radius: RadiusOptionKm | null) => void;
+}) {
+  return (
+    <div
+      className="flex flex-col gap-2 rounded-2xl p-3"
+      style={{ background: "rgb(14 20 32)", border: "1px solid rgb(30 45 65)" }}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <p
+            className="text-sm font-semibold"
+            style={{ color: "rgb(220 230 240)" }}
+          >
+            Atstumo filtras
+          </p>
+          <p className="text-xs" style={{ color: "rgb(100 120 150)" }}>
+            Naudokite GPS, kad rezultatai būtų rodomi pagal atstumą.
+          </p>
+        </div>
+        <button
+          id="scan-gps-btn"
+          onClick={onGpsRequest}
+          disabled={gpsLoading}
+          className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl transition-all"
+          style={{
+            background: gpsLoading
+              ? "rgb(52 199 89 / 0.2)"
+              : "rgb(52 199 89 / 0.1)",
+            border: "1.5px solid rgb(52 199 89 / 0.35)",
+            color: "rgb(52 199 89)",
+          }}
+          title="Naudoti mano lokaciją"
+        >
+          {gpsLoading ? (
+            <svg
+              className="animate-spin"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+            >
+              <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+            </svg>
+          ) : (
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="3" />
+              <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+              <circle cx="12" cy="12" r="8" strokeDasharray="3 3" />
+            </svg>
+          )}
+        </button>
+      </div>
+
+      {location && (
+        <div
+          className="rounded-xl px-3 py-2 text-xs font-medium"
+          style={{
+            background: "rgb(52 199 89 / 0.1)",
+            border: "1px solid rgb(52 199 89 / 0.25)",
+            color: "rgb(52 199 89)",
+          }}
+        >
+          Lokacija nustatyta · galima filtruoti pagal atstumą
+        </div>
+      )}
+      {gpsError && (
+        <div
+          className="rounded-xl px-3 py-2 text-xs font-medium"
+          style={{
+            background: "rgb(255 69 58 / 0.1)",
+            border: "1px solid rgb(255 69 58 / 0.25)",
+            color: "rgb(255 69 58)",
+          }}
+        >
+          {gpsError}
+        </div>
+      )}
+
+      {location && (
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1 pt-1">
+          <button
+            id="scan-filter-radius-all"
+            className={`chip ${selectedRadius === null ? "active" : ""}`}
+            onClick={() => onRadiusChange(null)}
+          >
+            Visi
+          </button>
+          {RADIUS_OPTIONS_KM.map((radius) => (
+            <button
+              key={radius}
+              id={`scan-filter-radius-${radius}`}
+              className={`chip ${selectedRadius === radius ? "active" : ""}`}
+              onClick={() =>
+                onRadiusChange(selectedRadius === radius ? null : radius)
+              }
+            >
+              {radius} km
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ResultPanel({
+  result,
+  matchesLoading,
+  matchesError,
+  radiusKm,
+}: {
+  result: ScanResult;
+  matchesLoading: boolean;
+  matchesError: string | null;
+  radiusKm: RadiusOptionKm | null;
+}) {
   const subtypeName = result.prediction.sourceSubTypeName;
 
   return (
@@ -304,8 +557,22 @@ function ResultPanel({ result }: { result: ScanResult }) {
             >
               {result.total}
             </span>{" "}
-            panašių vietų
+            panašių vietų{radiusKm ? ` iki ${radiusKm} km atstumu` : ""}
+            {matchesLoading ? " · atnaujinama..." : ""}
           </p>
+
+          {matchesError && (
+            <div
+              className="mb-3 rounded-xl p-3 text-xs font-medium"
+              style={{
+                background: "rgb(255 69 58 / 0.15)",
+                color: "rgb(255 69 58)",
+                border: "1px solid rgb(255 69 58 / 0.3)",
+              }}
+            >
+              {matchesError}
+            </div>
+          )}
 
           {result.items.length > 0 ? (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

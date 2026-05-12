@@ -35,6 +35,7 @@ export interface PlacesQuery {
   query?: string;
   category?: PlaceCategory;
   region?: string;
+  sourceSubTypeName?: string;
   radiusKm?: number;
   lat?: number;
   lng?: number;
@@ -70,6 +71,7 @@ export const api = {
       query: query.query,
       category: query.category,
       region: query.region,
+      sourceSubTypeName: query.sourceSubTypeName,
       radiusKm: query.radiusKm,
       lat: query.lat,
       lng: query.lng,

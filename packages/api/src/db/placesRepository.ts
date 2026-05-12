@@ -4,7 +4,6 @@ import type {
   PlaceDetail,
   PlaceFiltersResponse,
   PlaceSummary,
-  PlacesResponse,
 } from "@pathy/shared";
 import {
   PLACE_CATEGORIES,
@@ -17,6 +16,7 @@ export type ListPlacesFilters = {
   query?: string;
   category?: string;
   region?: string;
+  sourceSubTypeName?: string;
   radiusKm?: number;
   origin?: Coordinates;
   excludeId?: string;
@@ -172,6 +172,12 @@ export async function listPlaces(filters: ListPlacesFilters) {
     where.push(`p.region = ${addValue(filters.region)}`);
   }
 
+  if (filters.sourceSubTypeName) {
+    where.push(
+      `p.source_sub_type_name = ${addValue(filters.sourceSubTypeName)}`,
+    );
+  }
+
   if (filters.excludeId) {
     where.push(`p.slug <> ${addValue(filters.excludeId)}`);
   }
@@ -248,37 +254,6 @@ export async function getSourceSubTypes(): Promise<SourceSubTypeOption[]> {
     name: row.name,
     count: Number(row.count),
   }));
-}
-
-export async function listPlacesBySourceSubTypeName(
-  sourceSubTypeName: string,
-  options: { limit?: number; offset?: number } = {},
-): Promise<PlacesResponse> {
-  const limit = Math.trunc(options.limit ?? 12);
-  const offset = Math.trunc(options.offset ?? 0);
-
-  const result = await pool.query<PlaceRow>(
-    `
-      ${getBaseSelect()}
-      where p.source_sub_type_name = $1
-      group by p.id, p.slug
-      order by p.name asc
-      limit $2 offset $3
-    `,
-    [sourceSubTypeName, limit, offset],
-  );
-
-  const countResult = await pool.query<{ count: string }>(
-    "select count(*) from places p where p.source_sub_type_name = $1",
-    [sourceSubTypeName],
-  );
-
-  return {
-    items: result.rows.map(toSummary),
-    total: Number(countResult.rows[0].count),
-    limit,
-    offset,
-  };
 }
 
 export async function getPlaceById(id: string) {

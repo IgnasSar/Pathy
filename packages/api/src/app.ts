@@ -20,7 +20,6 @@ import {
   getPlacesByIds,
   getSourceSubTypes,
   listPlaces,
-  listPlacesBySourceSubTypeName,
 } from "./db/placesRepository.js";
 import {
   estimateDurationMinutes,
@@ -34,6 +33,7 @@ type PlacesQuerystring = {
   query?: string;
   category?: string;
   region?: string;
+  sourceSubTypeName?: string;
   radiusKm?: string;
   lat?: string;
   lng?: string;
@@ -215,6 +215,7 @@ export function buildApp() {
         query: request.query.query?.trim() || undefined,
         category: request.query.category,
         region: request.query.region,
+        sourceSubTypeName: request.query.sourceSubTypeName,
         radiusKm: parseOptionalNumber(request.query.radiusKm),
         origin: getOriginFromQuery(request.query),
         excludeId: request.query.excludeId,
@@ -258,16 +259,23 @@ export function buildApp() {
       !("mimeType" in body) ||
       !["image/jpeg", "image/png", "image/webp"].includes(
         (body as Record<string, unknown>).mimeType as string,
-      )
+      ) ||
+      ("origin" in body &&
+        (body as Record<string, unknown>).origin !== undefined &&
+        !isCoordinates((body as Record<string, unknown>).origin)) ||
+      ("radiusKm" in body &&
+        (body as Record<string, unknown>).radiusKm !== undefined &&
+        typeof (body as Record<string, unknown>).radiusKm !== "number")
     ) {
       const errorResponse: ApiErrorResponse = {
         error:
-          "Body must contain imageBase64 (string) and mimeType (image/jpeg, image/png, or image/webp).",
+          "Body must contain imageBase64 (string), mimeType (image/jpeg, image/png, or image/webp), and optional origin/radiusKm filters.",
       };
       return reply.code(400).send(errorResponse);
     }
 
-    const { imageBase64, mimeType } = body as RecognizeRequest;
+    const recognizeRequest = body as RecognizeRequest;
+    const { imageBase64, mimeType } = recognizeRequest;
 
     const base64Data = imageBase64.startsWith("data:")
       ? (imageBase64.split(",")[1] ?? imageBase64)
@@ -287,7 +295,12 @@ export function buildApp() {
       sourceSubTypes.map((sourceSubType) => sourceSubType.name),
     );
     const matches = prediction.sourceSubTypeName
-      ? await listPlacesBySourceSubTypeName(prediction.sourceSubTypeName, {
+      ? await listPlaces({
+          sourceSubTypeName: prediction.sourceSubTypeName,
+          origin: recognizeRequest.origin,
+          radiusKm: recognizeRequest.origin
+            ? recognizeRequest.radiusKm
+            : undefined,
           limit: 12,
           offset: 0,
         })

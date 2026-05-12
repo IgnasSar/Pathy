@@ -26,9 +26,15 @@ function AppShell() {
 
       {/* Main content */}
       <main className="flex-1 overflow-y-auto">
-        {activeTab === "search" && <SearchView />}
-        {activeTab === "scan" && <ScanView />}
-        {activeTab === "route" && <RouteView />}
+        <div style={{ display: activeTab === "search" ? "block" : "none" }}>
+          <SearchView />
+        </div>
+        <div style={{ display: activeTab === "scan" ? "block" : "none" }}>
+          <ScanView />
+        </div>
+        <div style={{ display: activeTab === "route" ? "block" : "none" }}>
+          <RouteView />
+        </div>
       </main>
 
       {/* Bottom navigation */}

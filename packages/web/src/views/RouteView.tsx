@@ -121,36 +121,6 @@ export function RouteView() {
         </button>
       </div>
 
-      {/* ── Route Metadata ───────────────────────────────────────────── */}
-      {routeData && (
-        <div
-          className="mx-4 mb-4 flex items-center justify-between rounded-xl px-4 py-3"
-          style={{
-            background: "rgb(52 199 89 / 0.15)",
-            border: "1px solid rgb(52 199 89 / 0.3)",
-          }}
-        >
-          <div>
-            <p className="text-xs font-semibold text-[rgb(52,199,89)]">
-              Atstumas
-            </p>
-            <p className="text-sm font-bold text-white">
-              {routeData.totals.distanceKm} km
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="text-xs font-semibold text-[rgb(52,199,89)]">
-              Trukmė
-            </p>
-            <p className="text-sm font-bold text-white">
-              {routeData.totals.durationMinutes >= 60
-                ? `${Math.floor(routeData.totals.durationMinutes / 60)}h ${routeData.totals.durationMinutes % 60}m`
-                : `${routeData.totals.durationMinutes}m`}
-            </p>
-          </div>
-        </div>
-      )}
-
       {/* ── List / Map toggle pill ───────────────────────────────────── */}
       <div
         className="mx-4 mb-4 flex rounded-xl p-1"
@@ -352,8 +322,41 @@ export function RouteView() {
             className="overflow-hidden rounded-2xl"
             style={{ border: "1px solid rgb(40 48 64)" }}
           >
-            <RouteMapView places={selectedPlaces} routePath={routeData?.path} routeSegments={routeData?.segments} />
+            <RouteMapView
+              places={selectedPlaces}
+              routePath={routeData?.path}
+              routeSegments={routeData?.segments}
+            />
           </div>
+
+          {routeData && (
+            <div
+              className="mt-4 flex items-center justify-between rounded-xl px-4 py-3"
+              style={{
+                background: "rgb(52 199 89 / 0.15)",
+                border: "1px solid rgb(52 199 89 / 0.3)",
+              }}
+            >
+              <div>
+                <p className="text-xs font-semibold text-[rgb(52,199,89)]">
+                  Atstumas
+                </p>
+                <p className="text-sm font-bold text-white">
+                  {routeData.totals.distanceKm} km
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs font-semibold text-[rgb(52,199,89)]">
+                  Trukmė
+                </p>
+                <p className="text-sm font-bold text-white">
+                  {routeData.totals.durationMinutes >= 60
+                    ? `${Math.floor(routeData.totals.durationMinutes / 60)}h ${routeData.totals.durationMinutes % 60}m`
+                    : `${routeData.totals.durationMinutes}m`}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
