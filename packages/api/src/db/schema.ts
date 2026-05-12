@@ -32,6 +32,10 @@ export const places = pgTable(
     source: text("source"),
     sourceId: text("source_id"),
     sourceUrl: text("source_url"),
+    sourceTypeId: integer("source_type_id"),
+    sourceTypeName: text("source_type_name"),
+    sourceSubTypeId: integer("source_sub_type_id"),
+    sourceSubTypeName: text("source_sub_type_name"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
