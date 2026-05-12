@@ -69,6 +69,13 @@ export function ScanView() {
   }
 
   function handleGpsRequest() {
+    if (location) {
+      setLocation(null);
+      setSelectedRadius(null);
+      setGpsError(null);
+      return;
+    }
+
     if (!navigator.geolocation) {
       setGpsError("Jūsų naršyklė nepalaiko GPS.");
       return;
@@ -428,10 +435,13 @@ function DistanceFilter({
           disabled={gpsLoading}
           className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl transition-all"
           style={{
-            background: gpsLoading
-              ? "rgb(52 199 89 / 0.2)"
-              : "rgb(52 199 89 / 0.1)",
-            border: "1.5px solid rgb(52 199 89 / 0.35)",
+            background:
+              gpsLoading || location
+                ? "rgb(52 199 89 / 0.2)"
+                : "rgb(52 199 89 / 0.1)",
+            border: location
+              ? "1.5px solid rgb(52 199 89)"
+              : "1.5px solid rgb(52 199 89 / 0.35)",
             color: "rgb(52 199 89)",
           }}
           title="Naudoti mano lokaciją"
@@ -468,18 +478,6 @@ function DistanceFilter({
         </button>
       </div>
 
-      {location && (
-        <div
-          className="rounded-xl px-3 py-2 text-xs font-medium"
-          style={{
-            background: "rgb(52 199 89 / 0.1)",
-            border: "1px solid rgb(52 199 89 / 0.25)",
-            color: "rgb(52 199 89)",
-          }}
-        >
-          Lokacija nustatyta · galima filtruoti pagal atstumą
-        </div>
-      )}
       {gpsError && (
         <div
           className="rounded-xl px-3 py-2 text-xs font-medium"

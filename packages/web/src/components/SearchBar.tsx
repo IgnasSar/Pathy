@@ -5,6 +5,7 @@ interface SearchBarProps {
   onChange: (value: string) => void;
   onGpsRequest: () => void;
   gpsLoading: boolean;
+  gpsActive?: boolean;
   placeholder?: string;
 }
 
@@ -13,6 +14,7 @@ export function SearchBar({
   onChange,
   onGpsRequest,
   gpsLoading,
+  gpsActive = false,
   placeholder = "Ieškoti vietų...",
 }: SearchBarProps) {
   const [localValue, setLocalValue] = useState(value);
@@ -98,10 +100,13 @@ export function SearchBar({
         title="Naudoti mano lokaciją"
         className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl transition-all"
         style={{
-          background: gpsLoading
-            ? "rgb(52 199 89 / 0.2)"
-            : "rgb(52 199 89 / 0.1)",
-          border: "1.5px solid rgb(52 199 89 / 0.35)",
+          background:
+            gpsLoading || gpsActive
+              ? "rgb(52 199 89 / 0.2)"
+              : "rgb(52 199 89 / 0.1)",
+          border: gpsActive
+            ? "1.5px solid rgb(52 199 89)"
+            : "1.5px solid rgb(52 199 89 / 0.35)",
           color: "rgb(52 199 89)",
         }}
       >

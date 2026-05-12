@@ -84,6 +84,13 @@ export function SearchView() {
 
   // GPS
   function handleGpsRequest() {
+    if (location) {
+      setLocation(null);
+      setSelectedRadius(null);
+      setGpsError(null);
+      return;
+    }
+
     if (!navigator.geolocation) {
       setGpsError("Jūsų naršyklė nepalaiko GPS.");
       return;
@@ -114,24 +121,10 @@ export function SearchView() {
         onChange={setQuery}
         onGpsRequest={handleGpsRequest}
         gpsLoading={gpsLoading}
+        gpsActive={location !== null}
       />
 
-      {/* GPS status messages */}
-      {location && (
-        <div
-          className="mx-4 mb-2 flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium"
-          style={{
-            background: "rgb(52 199 89 / 0.1)",
-            border: "1px solid rgb(52 199 89 / 0.25)",
-            color: "rgb(52 199 89)",
-          }}
-        >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-            <circle cx="12" cy="12" r="6" />
-          </svg>
-          Lokacija nustatyta · rodomi atstumai
-        </div>
-      )}
+      {/* GPS error */}
       {gpsError && (
         <div
           className="mx-4 mb-2 rounded-xl px-3 py-2 text-xs font-medium"
