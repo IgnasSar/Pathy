@@ -39,3 +39,31 @@ export function roundToOneDecimal(value: number) {
 function toRadians(value: number) {
   return (value * Math.PI) / 180;
 }
+
+export function optimizeRouteOrder<T extends { coordinates: Coordinates }>(
+  places: T[],
+): T[] {
+  if (places.length <= 2) return places;
+
+  // First place is kept as the fixed start point
+  const unvisited = places.slice(1);
+  const result: T[] = [places[0]];
+
+  while (unvisited.length > 0) {
+    const current = result[result.length - 1];
+    let nearestIdx = 0;
+    let nearestDist = Infinity;
+
+    for (let i = 0; i < unvisited.length; i++) {
+      const dist = haversineKm(current.coordinates, unvisited[i].coordinates);
+      if (dist < nearestDist) {
+        nearestDist = dist;
+        nearestIdx = i;
+      }
+    }
+
+    result.push(unvisited.splice(nearestIdx, 1)[0]);
+  }
+
+  return result;
+}

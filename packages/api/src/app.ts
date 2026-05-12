@@ -23,9 +23,11 @@ import {
 import {
   estimateDurationMinutes,
   haversineKm,
+  optimizeRouteOrder,
   roundToOneDecimal,
 } from "./lib/geo.js";
 import { recognizeImage } from "./lib/mistral.js";
+import { getOrsRoute } from "./lib/ors.js";
 
 type PlacesQuerystring = {
   query?: string;
@@ -316,10 +318,46 @@ export function buildApp() {
       return reply.code(404).send(errorResponse);
     }
 
-    const resolvedPlaces = routePlaces as PlaceDetail[];
-    const totalDistanceKm = roundToOneDecimal(
-      getRouteDistance(body.origin, resolvedPlaces),
-    );
+    const resolvedPlaces = optimizeRouteOrder(routePlaces as PlaceDetail[]);
+    const waypoints = getRoutePath(body.origin, resolvedPlaces);
+
+    let path: Coordinates[] = waypoints;
+    let segments: Coordinates[][] = [];
+    let distanceKm: number;
+    let durationMinutes: number;
+
+    function makeSegmentsFromWaypoints(wps: Coordinates[]): Coordinates[][] {
+      return wps.slice(0, -1).map((_, i) => [wps[i], wps[i + 1]]);
+    }
+
+    if (process.env.OPENROUTE_API_KEY) {
+      try {
+        const ors = await getOrsRoute(waypoints, body.transportType);
+        path = ors.path;
+        segments = ors.segments;
+        distanceKm = ors.distanceKm;
+        durationMinutes = ors.durationMinutes;
+      } catch (err) {
+        app.log.warn(
+          { err },
+          "ORS route failed, falling back to haversine estimate",
+        );
+        const fallbackKm = roundToOneDecimal(
+          getRouteDistance(body.origin, resolvedPlaces),
+        );
+        distanceKm = fallbackKm;
+        durationMinutes = estimateDurationMinutes(fallbackKm, body.transportType);
+        segments = makeSegmentsFromWaypoints(waypoints);
+      }
+    } else {
+      const fallbackKm = roundToOneDecimal(
+        getRouteDistance(body.origin, resolvedPlaces),
+      );
+      distanceKm = fallbackKm;
+      durationMinutes = estimateDurationMinutes(fallbackKm, body.transportType);
+      segments = makeSegmentsFromWaypoints(waypoints);
+    }
+
     const response: RoutePreviewResponse = {
       stops: resolvedPlaces.map((place, index) => ({
         order: index + 1,
@@ -328,14 +366,12 @@ export function buildApp() {
         coordinates: place.coordinates,
       })),
       totals: {
-        distanceKm: totalDistanceKm,
-        durationMinutes: estimateDurationMinutes(
-          totalDistanceKm,
-          body.transportType,
-        ),
+        distanceKm,
+        durationMinutes,
         transportType: body.transportType,
       },
-      path: getRoutePath(body.origin, resolvedPlaces),
+      path,
+      segments,
     };
 
     return response;

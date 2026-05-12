@@ -19,10 +19,31 @@ L.Icon.Default.mergeOptions({
 interface RouteMapViewProps {
   places: PlaceSummary[];
   routePath?: Coordinates[];
+  routeSegments?: Coordinates[][];
 }
 
 const LITHUANIA_CENTER: L.LatLngTuple = [55.1694, 23.8813];
 const DEFAULT_ZOOM = 7;
+
+const SEGMENT_COLORS = ["#34c759", "#5e9eff", "#ff9f0a", "#af52de", "#ff6b6b", "#00c7be", "#ffd60a", "#ff375f", "#30d158", "#64d2ff"];
+
+function makeDirArrow(bearing: number, color: string) {
+  return L.divIcon({
+    html: `<div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:12px solid ${color};transform:rotate(${bearing}deg);transform-origin:center center;"></div>`,
+    className: "",
+    iconSize: [12, 12],
+    iconAnchor: [6, 6],
+  });
+}
+
+function bearingDeg(from: Coordinates, to: Coordinates) {
+  const lat1 = (from.lat * Math.PI) / 180;
+  const lat2 = (to.lat * Math.PI) / 180;
+  const dLng = ((to.lng - from.lng) * Math.PI) / 180;
+  const y = Math.sin(dLng) * Math.cos(lat2);
+  const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng);
+  return ((Math.atan2(y, x) * 180) / Math.PI + 360) % 360;
+}
 
 function makeNumberedIcon(n: number, isFirst: boolean, isLast: boolean) {
   const color = isFirst ? "#34c759" : isLast ? "#ff453a" : "#5aa0ff";
@@ -41,7 +62,7 @@ function makeNumberedIcon(n: number, isFirst: boolean, isLast: boolean) {
   });
 }
 
-export function RouteMapView({ places, routePath }: RouteMapViewProps) {
+export function RouteMapView({ places, routePath, routeSegments }: RouteMapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const layerGroupRef = useRef<L.LayerGroup | null>(null);
@@ -120,7 +141,28 @@ export function RouteMapView({ places, routePath }: RouteMapViewProps) {
     });
 
     // Draw route path if provided, otherwise dashed polyline connecting stops
-    if (routePath && routePath.length >= 2) {
+    if (routeSegments && routeSegments.length > 0) {
+      const allLatLngs: L.LatLngTuple[] = [];
+      routeSegments.forEach((seg, i) => {
+        const color = SEGMENT_COLORS[i % SEGMENT_COLORS.length];
+        const segLatLngs: L.LatLngTuple[] = seg.map((c) => [c.lat, c.lng]);
+        allLatLngs.push(...segLatLngs);
+        group.addLayer(L.polyline(segLatLngs, { color, weight: 5, opacity: 0.92 }));
+
+        // Direction arrow at midpoint
+        if (seg.length >= 2) {
+          const midIdx = Math.floor(seg.length / 2);
+          const from = seg[midIdx - 1] ?? seg[0];
+          const to = seg[midIdx];
+          const mid = seg[midIdx];
+          const bearing = bearingDeg(from, to);
+          group.addLayer(L.marker([mid.lat, mid.lng], { icon: makeDirArrow(bearing, color), interactive: false }));
+        }
+      });
+      if (allLatLngs.length >= 2) {
+        map.fitBounds(L.latLngBounds(allLatLngs), { padding: [48, 48] });
+      }
+    } else if (routePath && routePath.length >= 2) {
       const pathLatLngs: L.LatLngTuple[] = routePath.map((c) => [c.lat, c.lng]);
       group.addLayer(
         L.polyline(pathLatLngs, {
@@ -145,7 +187,7 @@ export function RouteMapView({ places, routePath }: RouteMapViewProps) {
     }
 
     setTimeout(() => map.invalidateSize(), 80);
-  }, [places, routePath]);
+  }, [places, routePath, routeSegments]);
 
   // Invalidate size on mount (tab just switched)
   useEffect(() => {

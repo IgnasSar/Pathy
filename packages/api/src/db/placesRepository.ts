@@ -81,7 +81,7 @@ function getBaseSelect(origin?: Coordinates) {
 
   return `
     select
-      p.id,
+      p.slug as id,
       p.name,
       p.category,
       p.short_description,
@@ -167,7 +167,7 @@ export async function listPlaces(filters: ListPlacesFilters) {
   }
 
   if (filters.excludeId) {
-    where.push(`p.id <> ${addValue(filters.excludeId)}::uuid`);
+    where.push(`p.slug <> ${addValue(filters.excludeId)}`);
   }
 
   if (filters.radiusKm !== undefined && filters.origin) {
@@ -206,7 +206,7 @@ export async function listPlaces(filters: ListPlacesFilters) {
     `
       ${getBaseSelect(filters.origin)}
       ${whereSql}
-      group by p.id
+      group by p.id, p.slug
       ${orderSql}
       ${limitSql}
     `,
@@ -230,8 +230,8 @@ export async function getPlaceById(id: string) {
   const result = await pool.query<PlaceRow>(
     `
       ${getBaseSelect()}
-      where p.id = $1::uuid
-      group by p.id
+      where p.slug = $1
+      group by p.id, p.slug
     `,
     [id],
   );
@@ -245,8 +245,8 @@ export async function getPlacesByIds(ids: string[]) {
   const result = await pool.query<PlaceRow>(
     `
       ${getBaseSelect()}
-      where p.id = any($1::uuid[])
-      group by p.id
+      where p.slug = any($1::text[])
+      group by p.id, p.slug
     `,
     [ids],
   );

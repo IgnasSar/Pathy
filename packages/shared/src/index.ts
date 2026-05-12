@@ -287,6 +287,7 @@ export type RoutePreviewResponse = {
     transportType: TransportType;
   };
   path: Coordinates[];
+  segments: Coordinates[][];
 };
 
 export type RecognizeRequest = {

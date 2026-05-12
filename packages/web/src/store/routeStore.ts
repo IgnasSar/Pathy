@@ -10,7 +10,7 @@ import { createElement } from "react";
 import type { PlaceSummary } from "@pathy/shared";
 
 const MAX_PLACES = 10;
-const SESSION_KEY = "pathy_route_places";
+const SESSION_KEY = "pathy_route_places_v2";
 
 function loadFromSession(): PlaceSummary[] {
   try {
@@ -27,6 +27,7 @@ export interface RouteStore {
   removePlace: (id: string) => void;
   hasPlace: (id: string) => boolean;
   reorderPlaces: (from: number, to: number) => void;
+  setPlaces: (places: PlaceSummary[]) => void;
   clearPlaces: () => void;
 }
 
@@ -81,6 +82,10 @@ export function RouteStoreProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const setPlaces = useCallback((places: PlaceSummary[]) => {
+    setSelectedPlaces(places);
+  }, []);
+
   const clearPlaces = useCallback(() => setSelectedPlaces([]), []);
 
   return createElement(
@@ -92,6 +97,7 @@ export function RouteStoreProvider({ children }: { children: ReactNode }) {
         removePlace,
         hasPlace,
         reorderPlaces,
+        setPlaces,
         clearPlaces,
       },
     },
