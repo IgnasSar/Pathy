@@ -45,6 +45,9 @@ From the repository root:
 - `pnpm dev:api` - run only the API
 - `pnpm build` - build shared, API, and web
 - `pnpm typecheck` - run TypeScript checks for all workspaces
+- `pnpm --dir packages/api db:generate` - generate a new Drizzle migration from `packages/api/src/db/schema.ts`
+- `pnpm --dir packages/api db:migrate` - apply pending database migrations to the Postgres database from `DATABASE_URL`
+- `pnpm --dir packages/api db:studio` - open Drizzle Studio for inspecting/editing the database locally
 - `pnpm lint` - run ESLint for the repo
 - `pnpm lint:fix` - run ESLint with auto-fixes
 - `pnpm format` - format the repo with Prettier
