@@ -143,7 +143,16 @@ async function main() {
     ...(data.activeObjects ?? []),
     ...(data.passiveObjects ?? []),
   ];
-  const importableObjects = objects.filter(isImportable);
+  // TODO: Consider preserving whether a source object came from activeObjects,
+  // passiveObjects, or both. For now we deduplicate by globalId and import one
+  // place row per source object.
+  const importableObjects = Array.from(
+    new Map(
+      objects
+        .filter(isImportable)
+        .map((item) => [item.globalId, item] as const),
+    ).values(),
+  );
   const skipped = objects.length - importableObjects.length;
 
   const pool = new pg.Pool({

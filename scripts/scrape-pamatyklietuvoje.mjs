@@ -8,16 +8,16 @@ const SEARCH_URL = `${BASE_URL}/api/Search/byextent`;
 const TYPE_URL = `${BASE_URL}/api/Type`;
 const SUB_TYPE_URL = `${BASE_URL}/api/SubType`;
 const DEFAULT_PARAMS = {
-  xmin: "20.6261",
-  ymin: "53.5131",
-  xmax: "27.1064",
-  ymax: "56.7849",
+  xmin: "19.5007",
+  ymin: "52.3488",
+  xmax: "30.7837",
+  ymax: "58.0314",
   limit: "400",
   offset: "0",
   activeSubCategories: "1",
   activeSubTypes: "",
-  limitPassive: "100",
-  includePassive: "false",
+  limitPassive: "400",
+  includePassive: "true",
   term: "",
 };
 
@@ -170,7 +170,7 @@ async function main() {
       `Fetched offset ${offset}: ${active.length} active, ${passive.length} passive`,
     );
 
-    if (active.length < pageSize) {
+    if (active.length < pageSize && passive.length < pageSize) {
       break;
     }
 

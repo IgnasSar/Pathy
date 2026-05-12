@@ -132,15 +132,28 @@ export async function listPlaces(filters: ListPlacesFilters) {
     return `$${values.length}`;
   }
 
+  let searchQueryParam: string | undefined;
+
   if (filters.query && filters.query.length > 0) {
-    const param = addValue(`%${filters.query}%`);
+    searchQueryParam = addValue(filters.query);
+    const searchPatternParam = addValue(`%${filters.query}%`);
     where.push(`(
-      p.name ilike ${param}
-      or p.short_description ilike ${param}
-      or p.municipality ilike ${param}
+      p.name ilike ${searchPatternParam}
+      or p.short_description ilike ${searchPatternParam}
+      or p.municipality ilike ${searchPatternParam}
+      or to_tsvector(
+        'lithuanian',
+        coalesce(p.name, '') || ' ' ||
+        coalesce(p.short_description, '') || ' ' ||
+        coalesce(p.full_description, '') || ' ' ||
+        coalesce(p.municipality, '') || ' ' ||
+        coalesce(p.address, '')
+      ) @@ websearch_to_tsquery('lithuanian', ${searchQueryParam})
+      or similarity(p.name, ${searchQueryParam}) > 0.2
+      or word_similarity(${searchQueryParam}, p.name) > 0.35
       or exists (
         select 1 from place_tags search_pt
-        where search_pt.place_id = p.id and search_pt.tag ilike ${param}
+        where search_pt.place_id = p.id and search_pt.tag ilike ${searchPatternParam}
       )
     )`);
   }
@@ -164,9 +177,26 @@ export async function listPlaces(filters: ListPlacesFilters) {
   }
 
   const whereSql = where.length > 0 ? `where ${where.join(" and ")}` : "";
+  const searchOrderSql = searchQueryParam
+    ? `
+      ts_rank_cd(
+        to_tsvector(
+          'lithuanian',
+          coalesce(p.name, '') || ' ' ||
+          coalesce(p.short_description, '') || ' ' ||
+          coalesce(p.full_description, '') || ' ' ||
+          coalesce(p.municipality, '') || ' ' ||
+          coalesce(p.address, '')
+        ),
+        websearch_to_tsquery('lithuanian', ${searchQueryParam})
+      ) desc,
+      similarity(p.name, ${searchQueryParam}) desc,
+      word_similarity(${searchQueryParam}, p.name) desc,
+    `
+    : "";
   const orderSql = filters.origin
-    ? "order by distance_km asc"
-    : "order by p.name asc";
+    ? `order by ${searchOrderSql} distance_km asc`
+    : `order by ${searchOrderSql} p.name asc`;
   const countValues = [...values];
   const limit = Math.trunc(filters.limit ?? 24);
   const offset = Math.trunc(filters.offset ?? 0);
