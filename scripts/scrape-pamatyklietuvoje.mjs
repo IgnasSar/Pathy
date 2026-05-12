@@ -16,8 +16,8 @@ const DEFAULT_PARAMS = {
   offset: "0",
   activeSubCategories: "1",
   activeSubTypes: "",
-  limitPassive: "400",
-  includePassive: "true",
+  limitPassive: "100",
+  includePassive: "false",
   term: "",
 };
 
@@ -170,7 +170,7 @@ async function main() {
       `Fetched offset ${offset}: ${active.length} active, ${passive.length} passive`,
     );
 
-    if (active.length < pageSize && passive.length < pageSize) {
+    if (active.length < pageSize) {
       break;
     }
 
