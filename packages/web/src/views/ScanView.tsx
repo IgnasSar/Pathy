@@ -30,6 +30,7 @@ function isAcceptedMimeType(type: string): type is AcceptedMimeType {
 }
 
 const MAX_BYTES = 7.5 * 1024 * 1024;
+const PAGE_SIZE = 12;
 
 const CONFIDENCE_LABEL: Record<RecognizePrediction["confidence"], string> = {
   high: "Aukštas",
@@ -52,6 +53,7 @@ export function ScanView() {
   const [gpsLoading, setGpsLoading] = useState(false);
   const [gpsError, setGpsError] = useState<string | null>(null);
   const [matchesLoading, setMatchesLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [matchesError, setMatchesError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -164,7 +166,7 @@ export function ScanView() {
       .places({
         sourceSubTypeName: recognizedSubtypeName,
         ...getMatchFilters(),
-        limit: 12,
+        limit: PAGE_SIZE,
         offset: 0,
       })
       .then((response) => {
@@ -198,6 +200,40 @@ export function ScanView() {
     // Re-fetch only when distance filters or recognized subtype change.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recognizedSubtypeName, selectedRadius, location?.lat, location?.lng]);
+
+  async function handleLoadMore() {
+    if (state.kind !== "result" || !recognizedSubtypeName) return;
+
+    setLoadingMore(true);
+    setMatchesError(null);
+
+    try {
+      const response = await api.places({
+        sourceSubTypeName: recognizedSubtypeName,
+        ...getMatchFilters(),
+        limit: PAGE_SIZE,
+        offset: state.result.items.length,
+      });
+
+      setState((current) => {
+        if (current.kind !== "result") return current;
+        return {
+          ...current,
+          result: {
+            ...current.result,
+            items: [...current.result.items, ...response.items],
+            total: response.total,
+          },
+        };
+      });
+    } catch (err) {
+      setMatchesError(
+        err instanceof Error ? err.message : "Nepavyko įkelti daugiau vietų.",
+      );
+    } finally {
+      setLoadingMore(false);
+    }
+  }
 
   const dataUrl = state.kind === "idle" ? null : state.dataUrl;
 
@@ -344,8 +380,10 @@ export function ScanView() {
         <ResultPanel
           result={state.result}
           matchesLoading={matchesLoading}
+          loadingMore={loadingMore}
           matchesError={matchesError}
           radiusKm={location ? selectedRadius : null}
+          onLoadMore={handleLoadMore}
         />
       )}
     </div>
@@ -485,13 +523,17 @@ function DistanceFilter({
 function ResultPanel({
   result,
   matchesLoading,
+  loadingMore,
   matchesError,
   radiusKm,
+  onLoadMore,
 }: {
   result: ScanResult;
   matchesLoading: boolean;
+  loadingMore: boolean;
   matchesError: string | null;
   radiusKm: RadiusOptionKm | null;
+  onLoadMore: () => void;
 }) {
   const subtypeName = result.prediction.sourceSubTypeName;
 
@@ -575,11 +617,24 @@ function ResultPanel({
           )}
 
           {result.items.length > 0 ? (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {result.items.map((place) => (
-                <PlaceCard key={place.id} place={place} />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {result.items.map((place) => (
+                  <PlaceCard key={place.id} place={place} />
+                ))}
+              </div>
+
+              {result.items.length < result.total && (
+                <button
+                  type="button"
+                  className="btn btn-secondary mt-4 w-full"
+                  onClick={onLoadMore}
+                  disabled={loadingMore || matchesLoading}
+                >
+                  {loadingMore ? "Kraunama..." : "Rodyti daugiau"}
+                </button>
+              )}
+            </>
           ) : (
             <div
               className="rounded-xl p-4 text-sm"

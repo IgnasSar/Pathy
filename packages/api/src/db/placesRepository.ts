@@ -226,7 +226,13 @@ export async function listPlaces(filters: ListPlacesFilters) {
   );
 
   const countResult = await pool.query<{ count: string }>(
-    `select count(*) from places p ${whereSql}`,
+    `
+      select count(*) from (
+        ${getBaseSelect(filters.origin)}
+        ${whereSql}
+        group by p.id, p.slug
+      ) counted
+    `,
     countValues,
   );
 
