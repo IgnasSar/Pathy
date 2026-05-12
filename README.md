@@ -45,6 +45,10 @@ From the repository root:
 - `pnpm dev:api` - run only the API
 - `pnpm build` - build shared, API, and web
 - `pnpm typecheck` - run TypeScript checks for all workspaces
+- `pnpm scrape:pamatyklietuvoje` - scrape Pamatyk Lietuvoje objects plus type/subtype metadata into `tmp/pamatyklietuvoje-objects.json`
+- `pnpm import:pamatyklietuvoje` - build shared types and import `tmp/pamatyklietuvoje-objects.json` into the Postgres database from `DATABASE_URL`
+- `pnpm data:refresh:pamatyklietuvoje` - run the scrape and import steps together
+- `pnpm --dir packages/api import:pamatyklietuvoje <path>` - import a specific scraped JSON file into Postgres
 - `pnpm --dir packages/api db:generate` - generate a new Drizzle migration from `packages/api/src/db/schema.ts`
 - `pnpm --dir packages/api db:migrate` - apply pending database migrations to the Postgres database from `DATABASE_URL`
 - `pnpm --dir packages/api db:studio` - open Drizzle Studio for inspecting/editing the database locally

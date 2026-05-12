@@ -2,6 +2,7 @@ import {
   doublePrecision,
   index,
   integer,
+  jsonb,
   pgTable,
   primaryKey,
   text,
@@ -36,6 +37,7 @@ export const places = pgTable(
     sourceTypeName: text("source_type_name"),
     sourceSubTypeId: integer("source_sub_type_id"),
     sourceSubTypeName: text("source_sub_type_name"),
+    sourceGeometry: jsonb("source_geometry"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
