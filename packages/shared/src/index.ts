@@ -34,93 +34,6 @@ export const RADIUS_OPTIONS_KM = [5, 10, 25, 50, 100] as const;
 
 export type PlaceCategory = (typeof PLACE_CATEGORIES)[number];
 
-export const PLACE_SUBTYPES: Record<number, string> = {
-  1: "Apžvalgos bokštai",
-  2: "Apžvalgos vietos",
-  3: "Paukščių stebėjimo vietos",
-  4: "Reljefo objektai",
-  5: "Geologiniai objektai",
-  6: "Hidrografiniai objektai",
-  7: "Botaniniai objektai",
-  8: "Dvarai",
-  9: "Muziejai",
-  10: "Parkų lankytojų centrai",
-  11: "Bažnyčios",
-  12: "Sinagogos",
-  13: "Mečetės",
-  15: "Mitologinės vietos",
-  16: "Vandens malūnai",
-  17: "Vėjo malūnai",
-  18: "Funikulieriai",
-  19: "Išskirtiniai inžineriniai objektai",
-  20: "Miesto parkai",
-  21: "Miško parkai",
-  22: "Zoologijos sodai",
-  23: "Mini zoologijos sodai",
-  24: "Piliakalniai",
-  25: "Kūlgrindos",
-  26: "Fortifikacijos",
-  27: "Fortai",
-  28: "Dainų slėniai",
-  29: "Architektūriniai objektai",
-  31: "Paminklai",
-  33: "Išskirtiniai objektai",
-  34: "Žirgynai",
-  35: "Nuotykių parkai",
-  36: "Teminiai parkai",
-  37: "Vandens parkai",
-  38: "Labirintai",
-  39: "Kartodromai",
-  40: "Dažasvydis",
-  41: "Dviračių nuoma",
-  42: "Šuoliai parašiutu",
-  43: "Vandenlenčių parkai",
-  46: "Paplūdimiai",
-  47: "Žvejyba",
-  48: "Žiemos sporto arenos",
-  49: "Slidinėjimo vietos",
-  50: "Kulinarinis paveldas",
-  51: "Alaus bravorai",
-  52: "Išskirtiniai produktai",
-  62: "Turizmo informacijos centrai",
-  66: "Poilsiavietės",
-  89: "Kempingai",
-  90: "Privačios poilsiavietės",
-  92: "Archeologiniai objektai",
-  93: "Cerkvės",
-  94: "Sakraliniai objektai",
-  95: "Žymių žmonių gimtinės",
-  96: "Mūšių vietos",
-  98: "Memorialinės vietos",
-  100: "Švyturiai",
-  101: "Tiltai",
-  102: "Pažintiniai takai",
-  103: "Pilys",
-  104: "Ekspozicijos",
-  105: "Amatai",
-  106: "Istorinės vietos",
-  107: "Skraidymas",
-  108: "Pabėgimų kambariai",
-  109: "Šaudymas",
-  110: "Kabantys tiltai",
-  208: "Baseinai",
-  214: "Miesto aikštės",
-  215: "Gatvės menas",
-  218: "Privatūs paplūdimiai",
-  219: "Koplyčios",
-  220: "Skulptūros",
-  221: "Irklentės",
-  229: "Lauko čiuožyklos",
-  230: "Viešbučiai su SPA",
-  231: "Kaimo turizmo sodybos",
-  250: "Picerijos",
-  251: "Barai",
-  252: "Kepyklėlės",
-  254: "Poilsio kompleksai",
-  257: "Svečių namai",
-  258: "Išskirtinė nakvynė",
-};
-
 export const PAMATYK_LIETUVOJE_TYPE_CATEGORY_MAP: Record<
   number,
   PlaceCategory
@@ -295,14 +208,15 @@ export type RecognizeRequest = {
   mimeType: "image/jpeg" | "image/png" | "image/webp";
 };
 
-export type RecognizeResult = {
-  recognized: boolean;
-  name: string | null;
-  category: PlaceCategory | null;
-  sourceSubTypeId: number | null;
+export type RecognizePrediction = {
+  sourceSubTypeName: string | null;
   confidence: "high" | "medium" | "low";
 };
 
 export type RecognizeResponse = {
-  result: RecognizeResult;
+  prediction: RecognizePrediction;
+  items: PlaceSummary[];
+  total: number;
+  limit: number;
+  offset: number;
 };

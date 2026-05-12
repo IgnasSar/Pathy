@@ -18,7 +18,9 @@ import {
   getPlaceById,
   getPlaceFilters,
   getPlacesByIds,
+  getSourceSubTypes,
   listPlaces,
+  listPlacesBySourceSubTypeName,
 } from "./db/placesRepository.js";
 import {
   estimateDurationMinutes,
@@ -278,8 +280,25 @@ export function buildApp() {
       return reply.code(400).send(errorResponse);
     }
 
-    const result = await recognizeImage(imageBase64, mimeType);
-    const response: RecognizeResponse = { result };
+    const sourceSubTypes = await getSourceSubTypes();
+    const prediction = await recognizeImage(
+      imageBase64,
+      mimeType,
+      sourceSubTypes.map((sourceSubType) => sourceSubType.name),
+    );
+    const matches = prediction.sourceSubTypeName
+      ? await listPlacesBySourceSubTypeName(prediction.sourceSubTypeName, {
+          limit: 12,
+          offset: 0,
+        })
+      : { items: [], total: 0, limit: 12, offset: 0 };
+    const response: RecognizeResponse = {
+      prediction,
+      items: matches.items,
+      total: matches.total,
+      limit: matches.limit,
+      offset: matches.offset,
+    };
     return response;
   });
 
@@ -345,7 +364,10 @@ export function buildApp() {
           getRouteDistance(body.origin, resolvedPlaces),
         );
         distanceKm = fallbackKm;
-        durationMinutes = estimateDurationMinutes(fallbackKm, body.transportType);
+        durationMinutes = estimateDurationMinutes(
+          fallbackKm,
+          body.transportType,
+        );
         segments = makeSegmentsFromWaypoints(waypoints);
       }
     } else {
