@@ -1,7 +1,10 @@
-import "dotenv/config";
+import { config } from "dotenv";
 import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
 import * as schema from "./schema.js";
+
+config({ path: "../../.env" });
+config();
 
 const connectionString = process.env.DATABASE_URL;
 

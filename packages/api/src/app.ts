@@ -1,7 +1,6 @@
 import Fastify from "fastify";
 import {
   PLACE_CATEGORIES,
-  RADIUS_OPTIONS_KM,
   TRANSPORT_TYPES,
   type ApiErrorResponse,
   type Coordinates,
@@ -9,13 +8,16 @@ import {
   type PlaceCategory,
   type PlaceDetail,
   type PlaceDetailResponse,
-  type PlaceFiltersResponse,
-  type PlaceSummary,
   type PlacesResponse,
   type RoutePreviewRequest,
   type RoutePreviewResponse,
 } from "@pathy/shared";
-import { mockPlaces } from "./data/mock-places.js";
+import {
+  getPlaceById,
+  getPlaceFilters,
+  getPlacesByIds,
+  listPlaces,
+} from "./db/placesRepository.js";
 import {
   estimateDurationMinutes,
   haversineKm,
@@ -32,10 +34,6 @@ type PlacesQuerystring = {
   excludeId?: string;
   limit?: string;
 };
-
-function normalizeText(value: string) {
-  return value.trim().toLowerCase();
-}
 
 function parseOptionalNumber(value: string | undefined) {
   if (value === undefined) {
@@ -83,41 +81,6 @@ function getOriginFromQuery(query: PlacesQuerystring) {
   return { lat, lng };
 }
 
-function getPlaceSummary(
-  place: PlaceDetail,
-  origin?: Coordinates,
-): PlaceSummary {
-  const distanceKm = origin
-    ? roundToOneDecimal(haversineKm(origin, place.coordinates))
-    : undefined;
-
-  return {
-    id: place.id,
-    name: place.name,
-    category: place.category,
-    shortDescription: place.shortDescription,
-    region: place.region,
-    municipality: place.municipality,
-    coordinates: place.coordinates,
-    thumbnailUrl: place.thumbnailUrl,
-    recommendedVisitMinutes: place.recommendedVisitMinutes,
-    ...(distanceKm !== undefined ? { distanceKm } : {}),
-  };
-}
-
-function getPlaceFilters(): PlaceFiltersResponse {
-  return {
-    categories: PLACE_CATEGORIES.filter((category) =>
-      mockPlaces.some((place) => place.category === category),
-    ) as PlaceCategory[],
-    regions: Array.from(new Set(mockPlaces.map((place) => place.region))).sort(
-      (left, right) => left.localeCompare(right, "lt"),
-    ),
-    transportTypes: [...TRANSPORT_TYPES],
-    radiusOptionsKm: [...RADIUS_OPTIONS_KM],
-  };
-}
-
 function getPlacesQueryError(query: PlacesQuerystring) {
   if (
     query.category !== undefined &&
@@ -158,19 +121,6 @@ function getPlacesQueryError(query: PlacesQuerystring) {
   }
 
   return undefined;
-}
-
-function matchesSearch(place: PlaceDetail, searchText: string) {
-  const haystack = [
-    place.name,
-    place.shortDescription,
-    place.municipality,
-    ...place.tags,
-  ]
-    .join(" ")
-    .toLowerCase();
-
-  return haystack.includes(searchText);
 }
 
 function getRoutePreviewError(value: RoutePreviewRequest) {
@@ -245,74 +195,15 @@ export function buildApp() {
         return reply.code(400).send(errorResponse);
       }
 
-      const searchText = request.query.query
-        ? normalizeText(request.query.query)
-        : undefined;
-      const origin = getOriginFromQuery(request.query);
-      const radiusKm = parseOptionalNumber(request.query.radiusKm);
-      const limit = parseOptionalNumber(request.query.limit);
-
-      const filteredPlaces = mockPlaces.filter((place) => {
-        if (
-          searchText !== undefined &&
-          searchText.length > 0 &&
-          !matchesSearch(place, searchText)
-        ) {
-          return false;
-        }
-
-        if (
-          request.query.category !== undefined &&
-          place.category !== request.query.category
-        ) {
-          return false;
-        }
-
-        if (
-          request.query.region !== undefined &&
-          place.region !== request.query.region
-        ) {
-          return false;
-        }
-
-        if (
-          request.query.excludeId !== undefined &&
-          place.id === request.query.excludeId
-        ) {
-          return false;
-        }
-
-        return true;
+      const response: PlacesResponse = await listPlaces({
+        query: request.query.query?.trim() || undefined,
+        category: request.query.category,
+        region: request.query.region,
+        radiusKm: parseOptionalNumber(request.query.radiusKm),
+        origin: getOriginFromQuery(request.query),
+        excludeId: request.query.excludeId,
+        limit: parseOptionalNumber(request.query.limit),
       });
-
-      let items = filteredPlaces.map((place) => getPlaceSummary(place, origin));
-
-      if (radiusKm !== undefined) {
-        items = items.filter(
-          (place) =>
-            place.distanceKm !== undefined && place.distanceKm <= radiusKm,
-        );
-      }
-
-      items.sort((left, right) => {
-        if (origin !== undefined) {
-          return (
-            (left.distanceKm ?? Number.POSITIVE_INFINITY) -
-            (right.distanceKm ?? Number.POSITIVE_INFINITY)
-          );
-        }
-
-        return left.name.localeCompare(right.name, "lt");
-      });
-
-      const total = items.length;
-      const limitedItems =
-        limit !== undefined ? items.slice(0, Math.trunc(limit)) : items;
-
-      const response: PlacesResponse = {
-        items: limitedItems,
-        total,
-      };
 
       return response;
     },
@@ -321,7 +212,7 @@ export function buildApp() {
   app.get<{ Params: { id: string } }>(
     "/api/places/:id",
     async (request, reply) => {
-      const item = mockPlaces.find((place) => place.id === request.params.id);
+      const item = await getPlaceById(request.params.id);
 
       if (item === undefined) {
         const errorResponse: ApiErrorResponse = {
@@ -360,9 +251,7 @@ export function buildApp() {
       return reply.code(400).send(errorResponse);
     }
 
-    const routePlaces = body.placeIds.map((placeId) =>
-      mockPlaces.find((place) => place.id === placeId),
-    );
+    const routePlaces = await getPlacesByIds(body.placeIds);
     const missingPlaceIds = body.placeIds.filter(
       (_, index) => routePlaces[index] === undefined,
     );
