@@ -9,6 +9,8 @@ import {
   type PlaceDetail,
   type PlaceDetailResponse,
   type PlacesResponse,
+  type RecognizeRequest,
+  type RecognizeResponse,
   type RoutePreviewRequest,
   type RoutePreviewResponse,
 } from "@pathy/shared";
@@ -23,6 +25,7 @@ import {
   haversineKm,
   roundToOneDecimal,
 } from "./lib/geo.js";
+import { recognizeImage } from "./lib/mistral.js";
 
 type PlacesQuerystring = {
   query?: string;
@@ -177,6 +180,7 @@ function getRouteDistance(
 export function buildApp() {
   const app = Fastify({
     logger: true,
+    bodyLimit: 12 * 1024 * 1024, // 12 MB — needed for base64 image uploads
   });
 
   app.get("/health", async () => {
@@ -239,6 +243,44 @@ export function buildApp() {
       return response;
     },
   );
+
+  app.post("/api/recognize", async (request, reply) => {
+    const body = request.body as unknown;
+
+    if (
+      typeof body !== "object" ||
+      body === null ||
+      !("imageBase64" in body) ||
+      typeof (body as Record<string, unknown>).imageBase64 !== "string" ||
+      !("mimeType" in body) ||
+      !["image/jpeg", "image/png", "image/webp"].includes(
+        (body as Record<string, unknown>).mimeType as string,
+      )
+    ) {
+      const errorResponse: ApiErrorResponse = {
+        error:
+          "Body must contain imageBase64 (string) and mimeType (image/jpeg, image/png, or image/webp).",
+      };
+      return reply.code(400).send(errorResponse);
+    }
+
+    const { imageBase64, mimeType } = body as RecognizeRequest;
+
+    const base64Data = imageBase64.startsWith("data:")
+      ? (imageBase64.split(",")[1] ?? imageBase64)
+      : imageBase64;
+
+    if (base64Data.length > 10 * 1024 * 1024) {
+      const errorResponse: ApiErrorResponse = {
+        error: "Image too large (max ~7.5 MB).",
+      };
+      return reply.code(400).send(errorResponse);
+    }
+
+    const result = await recognizeImage(imageBase64, mimeType);
+    const response: RecognizeResponse = { result };
+    return response;
+  });
 
   app.post("/api/route-preview", async (request, reply) => {
     const body = request.body as unknown;

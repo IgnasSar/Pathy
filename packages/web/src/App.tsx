@@ -4,8 +4,9 @@ import { Header } from "./components/Header";
 import { BottomNav } from "./components/BottomNav";
 import { SearchView } from "./views/SearchView";
 import { RouteView } from "./views/RouteView";
+import { ScanView } from "./views/ScanView";
 
-type Tab = "search" | "route";
+type Tab = "search" | "scan" | "route";
 
 function AppShell() {
   const [activeTab, setActiveTab] = useState<Tab>("search");
@@ -26,6 +27,7 @@ function AppShell() {
       {/* Main content */}
       <main className="flex-1 overflow-y-auto">
         {activeTab === "search" && <SearchView />}
+        {activeTab === "scan" && <ScanView />}
         {activeTab === "route" && <RouteView />}
       </main>
 

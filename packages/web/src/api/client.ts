@@ -3,6 +3,8 @@ import type {
   PlaceDetailResponse,
   PlaceFiltersResponse,
   PlacesResponse,
+  RecognizeRequest,
+  RecognizeResponse,
   RoutePreviewRequest,
   RoutePreviewResponse,
 } from "@pathy/shared";
@@ -58,6 +60,9 @@ function buildQueryString(
 }
 
 export const api = {
+  recognize: (req: RecognizeRequest) =>
+    post<RecognizeResponse>("/recognize", req),
+
   filters: () => get<PlaceFiltersResponse>("/filters"),
 
   places: (query: PlacesQuery = {}) => {
