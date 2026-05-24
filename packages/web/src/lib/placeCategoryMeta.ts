@@ -1,34 +1,6 @@
 import type { PlaceCategory } from "@pathy/shared";
 
-export const CATEGORY_LABELS: Record<PlaceCategory, string> = {
-  museum: "Muziejai",
-  castle: "Pilys ir dvarai",
-  church: "Religiniai objektai",
-  viewpoint: "Apžvalgos vietos",
-  nature: "Gamta",
-  park: "Parkai",
-  memorial: "Memorialai",
-  archaeology: "Archeologija",
-  "street-art": "Gatvės menas",
-  landmark: "Istorija ir architektūra",
-  heritage: "Paveldas",
-  engineering: "Inžineriniai objektai",
-  ethnography: "Etnografija ir mitologija",
-  trail: "Takai ir ekskursijos",
-  beach: "Paplūdimiai",
-  "water-activity": "Vandens pramogos",
-  adventure: "Pramogos",
-  sports: "Sportas",
-  food: "Maistas ir gėrimai",
-  lodging: "Nakvynė",
-  transport: "Transportas",
-  service: "Paslaugos",
-  shopping: "Apsipirkimas",
-  event: "Kultūra ir renginiai",
-  animal: "Gyvūnai",
-  wellness: "SPA ir baseinai",
-  other: "Kita",
-};
+
 
 export const CATEGORY_ICONS: Record<PlaceCategory, string> = {
   museum: "🏛️",

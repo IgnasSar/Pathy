@@ -1,3 +1,5 @@
+import { useTranslation } from "../hooks/useTranslation";
+
 type Tab = "search" | "scan" | "route";
 
 interface BottomNavProps {
@@ -11,10 +13,11 @@ export function BottomNav({
   onTabChange,
   routeCount,
 }: BottomNavProps) {
+  const { t } = useTranslation();
   const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
     {
       id: "search",
-      label: "Paieška",
+      label: t("nav.search"),
       icon: (
         <svg
           width="22"
@@ -33,7 +36,7 @@ export function BottomNav({
     },
     {
       id: "scan",
-      label: "Skanuoti",
+      label: t("nav.scan"),
       icon: (
         <svg
           width="22"
@@ -53,7 +56,7 @@ export function BottomNav({
     },
     {
       id: "route",
-      label: "Maršrutas",
+      label: t("nav.route"),
       icon: (
         <svg
           width="22"

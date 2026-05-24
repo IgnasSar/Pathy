@@ -1,5 +1,7 @@
 import type { PlaceCategory, RadiusOptionKm } from "@pathy/shared";
-import { CATEGORY_ICONS, CATEGORY_LABELS } from "../lib/placeCategoryMeta";
+import { CATEGORY_ICONS } from "../lib/placeCategoryMeta";
+import { useTranslation } from "../hooks/useTranslation";
+import type { TranslationKey } from "../i18n/translations";
 
 interface FilterBarProps {
   categories: PlaceCategory[];
@@ -20,6 +22,8 @@ export function FilterBar({
   onCategoryChange,
   onRadiusChange,
 }: FilterBarProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-2 px-4 pb-3">
       <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1">
@@ -28,7 +32,7 @@ export function FilterBar({
           className={`chip ${selectedCategory === null ? "active" : ""}`}
           onClick={() => onCategoryChange(null)}
         >
-          Visos
+          {t("filter.allFem")}
         </button>
         {categories.map((cat) => (
           <button
@@ -40,7 +44,7 @@ export function FilterBar({
             }
           >
             <span>{CATEGORY_ICONS[cat]}</span>
-            {CATEGORY_LABELS[cat]}
+            {t(`cat.${cat}` as TranslationKey)}
           </button>
         ))}
       </div>
@@ -51,14 +55,14 @@ export function FilterBar({
             className="flex-shrink-0 text-xs font-medium"
             style={{ color: "rgb(130 145 170)" }}
           >
-            Atstumas:
+            {t("filter.distance")}
           </span>
           <button
             id="filter-radius-all"
             className={`chip ${selectedRadius === null ? "active" : ""}`}
             onClick={() => onRadiusChange(null)}
           >
-            Visi
+            {t("filter.all")}
           </button>
           {radiusOptions.map((radius) => (
             <button
@@ -79,7 +83,7 @@ export function FilterBar({
         <div className="flex items-center justify-between">
           <p className="text-xs" style={{ color: "rgb(130 145 170)" }}>
             {[
-              selectedCategory ? CATEGORY_LABELS[selectedCategory] : null,
+              selectedCategory ? t(`cat.${selectedCategory}` as TranslationKey) : null,
               selectedRadius ? `<= ${selectedRadius} km` : null,
             ]
               .filter(Boolean)
@@ -93,7 +97,7 @@ export function FilterBar({
             className="text-xs font-medium transition-colors"
             style={{ color: "rgb(52 199 89)" }}
           >
-            Isvalyti
+            {t("filter.clear")}
           </button>
         </div>
       )}

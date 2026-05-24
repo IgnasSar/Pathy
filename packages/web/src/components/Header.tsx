@@ -1,4 +1,7 @@
+import { useState, useRef, useEffect } from "react";
 import { useRouteStore } from "../store/routeStore";
+import { useLangStore, LANGUAGES } from "../store/langStore";
+import { useTranslation } from "../hooks/useTranslation";
 
 interface HeaderProps {
   onRouteClick: () => void;
@@ -6,7 +9,26 @@ interface HeaderProps {
 
 export function Header({ onRouteClick }: HeaderProps) {
   const { selectedPlaces } = useRouteStore();
+  const { language, setLanguage } = useLangStore();
   const count = selectedPlaces.length;
+  const { t } = useTranslation();
+
+  const [isLangOpen, setIsLangOpen] = useState(false);
+  const langRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (langRef.current && !langRef.current.contains(event.target as Node)) {
+        setIsLangOpen(false);
+      }
+    }
+    if (isLangOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isLangOpen]);
 
   return (
     <header
@@ -51,14 +73,68 @@ export function Header({ onRouteClick }: HeaderProps) {
 
       {/* Right side */}
       <div className="flex items-center gap-3">
-        {/* Language toggle placeholder */}
-        <button
-          id="lang-toggle"
-          className="btn btn-ghost px-3 py-1.5 text-xs"
-          style={{ borderRadius: "0.5rem", fontSize: "0.75rem" }}
-        >
-          LT
-        </button>
+        {/* Language toggle dropdown */}
+        <div className="relative" ref={langRef}>
+          <button
+            id="lang-toggle"
+            onClick={() => setIsLangOpen(!isLangOpen)}
+            className="flex items-center gap-1.5 px-3 py-1.5 font-semibold transition-all"
+            style={{
+              borderRadius: "0.5rem",
+              fontSize: "0.75rem",
+              background: isLangOpen ? "rgb(52 199 89 / 0.15)" : "transparent",
+              color: isLangOpen ? "rgb(52 199 89)" : "rgb(230 236 246)",
+            }}
+          >
+            {language}
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{
+                transform: isLangOpen ? "rotate(180deg)" : "none",
+                transition: "transform 0.2s ease-in-out",
+              }}
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+
+          {isLangOpen && (
+            <div
+              className="absolute top-full right-0 mt-2 py-1 flex flex-col overflow-hidden shadow-lg"
+              style={{
+                background: "rgb(20 25 35)",
+                border: "1px solid rgb(40 48 64)",
+                borderRadius: "0.75rem",
+                minWidth: "4rem",
+                zIndex: 1300,
+              }}
+            >
+              {LANGUAGES.map((lang) => (
+                <button
+                  key={lang}
+                  onClick={() => {
+                    setLanguage(lang);
+                    setIsLangOpen(false);
+                  }}
+                  className="px-4 py-2 text-xs text-left transition-colors font-medium hover:bg-white/5"
+                  style={{
+                    color: language === lang ? "rgb(52 199 89)" : "rgb(180 195 215)",
+                    background: language === lang ? "rgb(52 199 89 / 0.1)" : "transparent",
+                  }}
+                >
+                  {lang}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* Route basket */}
         <button
@@ -83,7 +159,7 @@ export function Header({ onRouteClick }: HeaderProps) {
           >
             <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
           </svg>
-          <span>Maršrutas</span>
+          <span>{t("nav.route")}</span>
           {count > 0 && (
             <span
               className="flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold"

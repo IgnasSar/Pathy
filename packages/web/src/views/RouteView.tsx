@@ -3,13 +3,14 @@ import type { RoutePreviewResponse, TransportType } from "@pathy/shared";
 import { useRouteStore } from "../store/routeStore";
 import { RouteMapView } from "../components/RouteMapView";
 import { api } from "../api/client";
+import { useTranslation } from "../hooks/useTranslation";
 
 type ViewMode = "list" | "map";
 
-const TRANSPORTS: { key: string; emoji: string; label: string }[] = [
-  { key: "car", emoji: "🚗", label: "Automobilis" },
-  { key: "bike", emoji: "🚲", label: "Dviratis" },
-  { key: "walk", emoji: "🚶", label: "Pėsčiomis" },
+const TRANSPORTS: { key: string; emoji: string }[] = [
+  { key: "car", emoji: "🚗" },
+  { key: "bike", emoji: "🚲" },
+  { key: "walk", emoji: "🚶" },
 ];
 
 export function RouteView() {
@@ -17,6 +18,7 @@ export function RouteView() {
     useRouteStore();
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [transport, setTransport] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   const [generating, setGenerating] = useState(false);
   const [routeData, setRouteData] = useState<RoutePreviewResponse | null>(null);
@@ -43,7 +45,7 @@ export function RouteView() {
       setViewMode("map"); // auto-switch to map
     } catch (err) {
       setGenError(
-        err instanceof Error ? err.message : "Nepavyko sugeneruoti maršruto.",
+        err instanceof Error ? err.message : t("error.genRouteFailed"),
       );
     } finally {
       setGenerating(false);
@@ -70,14 +72,13 @@ export function RouteView() {
           className="mb-2 text-xl font-bold"
           style={{ color: "rgb(230 236 246)" }}
         >
-          Maršrutas tuščias
+          {t("route.empty")}
         </h2>
         <p
           className="text-sm leading-relaxed"
           style={{ color: "rgb(130 145 170)" }}
         >
-          Paieškoje pasirinkite vietas ir jos atsiras čia. Galite pridėti iki 10
-          vietų.
+          {t("route.emptyDesc")}
         </p>
         <div
           className="mt-6 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm"
@@ -87,7 +88,7 @@ export function RouteView() {
             color: "rgb(52 199 89)",
           }}
         >
-          ← Eikite į paiešką ir pridėkite vietų
+          {t("route.goSearch")}
         </div>
       </div>
     );
@@ -106,10 +107,10 @@ export function RouteView() {
             className="text-lg font-bold"
             style={{ color: "rgb(230 236 246)" }}
           >
-            Jūsų maršrutas
+            {t("route.yourRoute")}
           </h2>
           <p className="text-xs" style={{ color: "rgb(130 145 170)" }}>
-            {selectedPlaces.length} / 10 vietų pasirinkta
+            {selectedPlaces.length} / 10 {t("route.selected")}
           </p>
         </div>
         <button
@@ -117,7 +118,7 @@ export function RouteView() {
           onClick={clearPlaces}
           className="btn btn-danger px-3 py-1.5 text-xs"
         >
-          Išvalyti viską
+          {t("route.clearAll")}
         </button>
       </div>
 
@@ -159,7 +160,7 @@ export function RouteView() {
             <line x1="3" y1="12" x2="3.01" y2="12" />
             <line x1="3" y1="18" x2="3.01" y2="18" />
           </svg>
-          Sąrašas
+          {t("route.list")}
         </button>
         <button
           id="route-view-map"
@@ -189,7 +190,7 @@ export function RouteView() {
             <line x1="8" y1="2" x2="8" y2="18" />
             <line x1="16" y1="6" x2="16" y2="22" />
           </svg>
-          Žemėlapis
+          {t("route.map")}
         </button>
       </div>
 
@@ -339,7 +340,7 @@ export function RouteView() {
             >
               <div>
                 <p className="text-xs font-semibold text-[rgb(52,199,89)]">
-                  Atstumas
+                  {t("route.distance")}
                 </p>
                 <p className="text-sm font-bold text-white">
                   {routeData.totals.distanceKm} km
@@ -347,12 +348,12 @@ export function RouteView() {
               </div>
               <div className="text-right">
                 <p className="text-xs font-semibold text-[rgb(52,199,89)]">
-                  Trukmė
+                  {t("route.duration")}
                 </p>
                 <p className="text-sm font-bold text-white">
                   {routeData.totals.durationMinutes >= 60
-                    ? `${Math.floor(routeData.totals.durationMinutes / 60)}h ${routeData.totals.durationMinutes % 60}m`
-                    : `${routeData.totals.durationMinutes}m`}
+                    ? `${Math.floor(routeData.totals.durationMinutes / 60)}${t("place.h")} ${routeData.totals.durationMinutes % 60}${t("place.min")}`
+                    : `${routeData.totals.durationMinutes}${t("place.min")}`}
                 </p>
               </div>
             </div>
@@ -367,10 +368,10 @@ export function RouteView() {
             className="mb-3 text-sm font-semibold"
             style={{ color: "rgb(230 236 246)" }}
           >
-            Transporto priemonė
+            {t("route.transport")}
           </p>
           <div className="grid grid-cols-3 gap-2">
-            {TRANSPORTS.map(({ key, emoji, label }) => {
+            {TRANSPORTS.map(({ key, emoji }) => {
               const active = transport === key;
               return (
                 <button
@@ -389,7 +390,7 @@ export function RouteView() {
                   }}
                 >
                   <span className="text-2xl">{emoji}</span>
-                  <span>{label}</span>
+                  <span>{t(`route.${key}` as any)}</span>
                 </button>
               );
             })}
@@ -401,8 +402,7 @@ export function RouteView() {
               className="mt-3 text-center text-xs"
               style={{ color: "rgb(130 145 170)" }}
             >
-              Pasirinkite transporto priemonę, kad galėtumėte generuoti
-              maršrutą.
+              {t("route.chooseTransport")}
             </p>
           )}
 
@@ -469,7 +469,7 @@ export function RouteView() {
                 <line x1="16" y1="6" x2="16" y2="22" />
               </svg>
             )}
-            {generating ? "Skaičiuojama..." : "Generuoti maršrutą"}
+            {generating ? t("route.calculating") : t("route.generate")}
           </button>
         </div>
       )}

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import type { Coordinates, PlaceSummary } from "@pathy/shared";
+import { useTranslation } from "../hooks/useTranslation";
 
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -66,6 +67,7 @@ export function RouteMapView({ places, routePath, routeSegments }: RouteMapViewP
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const layerGroupRef = useRef<L.LayerGroup | null>(null);
+  const { t } = useTranslation();
 
   // Initialise map once
   useEffect(() => {
@@ -121,8 +123,8 @@ export function RouteMapView({ places, routePath, routeSegments }: RouteMapViewP
 
       const visitHours =
         place.recommendedVisitMinutes >= 60
-          ? `${Math.floor(place.recommendedVisitMinutes / 60)}h ${place.recommendedVisitMinutes % 60 > 0 ? `${place.recommendedVisitMinutes % 60}min` : ""}`
-          : `${place.recommendedVisitMinutes}min`;
+          ? `${Math.floor(place.recommendedVisitMinutes / 60)}${t("place.h")} ${place.recommendedVisitMinutes % 60 > 0 ? `${place.recommendedVisitMinutes % 60}${t("place.min")}` : ""}`
+          : `${place.recommendedVisitMinutes}${t("place.min")}`;
 
       const marker = L.marker([lat, lng], {
         icon: makeNumberedIcon(i + 1, isFirst, isLast),
@@ -219,7 +221,7 @@ export function RouteMapView({ places, routePath, routeSegments }: RouteMapViewP
             className="text-sm font-medium"
             style={{ color: "rgb(130 145 170)" }}
           >
-            Koordinatės neprieinamos šioms vietoms.
+            {t("map.noCoords")}
           </p>
         </div>
       )}
@@ -239,17 +241,17 @@ export function RouteMapView({ places, routePath, routeSegments }: RouteMapViewP
             gap: "8px",
           }}
         >
-          <span style={{ color: "#34c759", marginRight: 2 }}>●</span> Pradžia
+          <span style={{ color: "#34c759", marginRight: 2 }}>●</span> {t("map.start")}
           <span style={{ color: "#ff453a", marginRight: 2, marginLeft: 6 }}>
             ●
           </span>{" "}
-          Pabaiga
+          {t("map.end")}
           {places.length > 2 && (
             <>
               <span style={{ color: "#5aa0ff", marginRight: 2, marginLeft: 6 }}>
                 ●
               </span>{" "}
-              Tarpinė
+              {t("map.intermediate")}
             </>
           )}
         </div>

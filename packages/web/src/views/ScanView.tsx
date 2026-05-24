@@ -14,6 +14,7 @@ import type {
 import { RADIUS_OPTIONS_KM } from "@pathy/shared";
 import { api } from "../api/client";
 import { PlaceCard } from "../components/PlaceCard";
+import { useTranslation } from "../hooks/useTranslation";
 
 type ScanResult = {
   prediction: RecognizePrediction;
@@ -38,12 +39,6 @@ function isAcceptedMimeType(type: string): type is AcceptedMimeType {
 const MAX_BYTES = 7.5 * 1024 * 1024;
 const PAGE_SIZE = 12;
 
-const CONFIDENCE_LABEL: Record<RecognizePrediction["confidence"], string> = {
-  high: "Aukštas",
-  medium: "Vidutinis",
-  low: "Žemas",
-};
-
 const CONFIDENCE_COLOR: Record<RecognizePrediction["confidence"], string> = {
   high: "rgb(52 199 89)",
   medium: "rgb(255 204 0)",
@@ -51,6 +46,7 @@ const CONFIDENCE_COLOR: Record<RecognizePrediction["confidence"], string> = {
 };
 
 export function ScanView() {
+  const { t } = useTranslation();
   const [state, setState] = useState<UploadState>({ kind: "idle" });
   const [selectedRadius, setSelectedRadius] = useState<RadiusOptionKm | null>(
     null,
@@ -87,7 +83,7 @@ export function ScanView() {
     }
 
     if (!navigator.geolocation) {
-      setGpsError("Jūsų naršyklė nepalaiko GPS.");
+      setGpsError(t("error.noGps"));
       return;
     }
 
@@ -99,7 +95,7 @@ export function ScanView() {
         setGpsLoading(false);
       },
       () => {
-        setGpsError("Nepavyko gauti lokacijos. Patikrinkite leidimus.");
+        setGpsError(t("error.gpsFailed"));
         setGpsLoading(false);
       },
       { timeout: 8000 },
@@ -111,12 +107,12 @@ export function ScanView() {
     if (!file) return;
 
     if (!isAcceptedMimeType(file.type)) {
-      alert("Palaikomi formatai: JPEG, PNG, WebP.");
+      alert(t("scan.alertFormat"));
       return;
     }
 
     if (file.size > MAX_BYTES) {
-      alert("Vaizdas per didelis. Maksimalus dydis — 7,5 MB.");
+      alert(t("scan.alertSize"));
       return;
     }
 
@@ -161,7 +157,7 @@ export function ScanView() {
         kind: "error",
         dataUrl,
         message:
-          err instanceof Error ? err.message : "Nepavyko atpažinti vaizdo.",
+          err instanceof Error ? err.message : t("error.scanFailed"),
       });
     }
   }
@@ -215,7 +211,7 @@ export function ScanView() {
       .catch((err) => {
         if (!ignore) {
           setMatchesError(
-            err instanceof Error ? err.message : "Nepavyko atnaujinti vietų.",
+            err instanceof Error ? err.message : t("error.scanUpdateFailed"),
           );
         }
       })
@@ -257,7 +253,7 @@ export function ScanView() {
       });
     } catch (err) {
       setMatchesError(
-        err instanceof Error ? err.message : "Nepavyko įkelti daugiau vietų.",
+        err instanceof Error ? err.message : t("error.scanMoreFailed"),
       );
     } finally {
       setLoadingMore(false);
@@ -303,11 +299,10 @@ export function ScanView() {
           className="text-lg font-semibold"
           style={{ color: "rgb(220 230 240)" }}
         >
-          Atpažinti vietos tipą
+          {t("scan.recognize")}
         </h2>
         <p className="mt-1 text-sm" style={{ color: "rgb(100 120 150)" }}>
-          Įkelkite nuotrauką — AI parinks panašių Lietuvos lankytinų vietų tipą
-          ir parodys atitinkančius objektus.
+          {t("scan.desc")}
         </p>
       </div>
 
@@ -346,14 +341,14 @@ export function ScanView() {
               <circle cx="8.5" cy="8.5" r="1.5" />
               <polyline points="21 15 16 10 5 21" />
             </svg>
-            <span
+              <span
               className="text-center text-sm font-medium"
               style={{ color: "rgb(130 150 175)" }}
             >
-              Spustelėkite, kad pasirinktumėte nuotrauką
+              {t("scan.clickToChoose")}
               <br />
               <span style={{ color: "rgb(70 90 115)", fontSize: "0.75rem" }}>
-                JPEG · PNG · WebP · maks. 7,5 MB
+                {t("scan.format")}
               </span>
             </span>
           </div>
@@ -390,7 +385,7 @@ export function ScanView() {
               border: "1px solid rgb(40 56 76)",
             }}
           >
-            Pasirinkti kitą
+            {t("scan.chooseAnother")}
           </button>
           {state.kind === "preview" && (
             <button
@@ -398,7 +393,7 @@ export function ScanView() {
               className="flex-1 rounded-xl py-2.5 text-sm font-semibold transition-all"
               style={{ background: "rgb(52 199 89)", color: "#0a1408" }}
             >
-              Analizuoti
+              {t("scan.analyze")}
             </button>
           )}
         </div>
@@ -414,7 +409,7 @@ export function ScanView() {
             }}
           />
           <span className="text-sm" style={{ color: "rgb(100 120 150)" }}>
-            AI analizuoja vaizdą…
+            {t("scan.analyzing")}
           </span>
         </div>
       )}
@@ -440,6 +435,7 @@ export function ScanView() {
           matchesError={matchesError}
           radiusKm={location ? selectedRadius : null}
           loadMoreRef={loadMoreRef}
+          t={t}
         />
       )}
     </div>
@@ -461,6 +457,7 @@ function DistanceFilter({
   onGpsRequest: () => void;
   onRadiusChange: (radius: RadiusOptionKm | null) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div
       className="flex flex-col gap-2 rounded-2xl p-3"
@@ -472,10 +469,10 @@ function DistanceFilter({
             className="text-sm font-semibold"
             style={{ color: "rgb(220 230 240)" }}
           >
-            Atstumo filtras
+            {t("scan.distanceFilter")}
           </p>
           <p className="text-xs" style={{ color: "rgb(100 120 150)" }}>
-            Naudokite GPS, kad rezultatai būtų rodomi pagal atstumą.
+            {t("scan.useGpsForDistance")}
           </p>
         </div>
         <button
@@ -493,7 +490,7 @@ function DistanceFilter({
               : "1.5px solid rgb(52 199 89 / 0.35)",
             color: "rgb(52 199 89)",
           }}
-          title="Naudoti mano lokaciją"
+          title={t("search.useLocation")}
         >
           {gpsLoading ? (
             <svg
@@ -547,7 +544,7 @@ function DistanceFilter({
             className={`chip ${selectedRadius === null ? "active" : ""}`}
             onClick={() => onRadiusChange(null)}
           >
-            Visi
+            {t("filter.all")}
           </button>
           {RADIUS_OPTIONS_KM.map((radius) => (
             <button
@@ -574,6 +571,7 @@ function ResultPanel({
   matchesError,
   radiusKm,
   loadMoreRef,
+  t,
 }: {
   result: ScanResult;
   matchesLoading: boolean;
@@ -581,6 +579,7 @@ function ResultPanel({
   matchesError: string | null;
   radiusKm: RadiusOptionKm | null;
   loadMoreRef: (node: HTMLDivElement | null) => void;
+  t: (key: any) => string;
 }) {
   const subtypeName = result.prediction.sourceSubTypeName;
 
@@ -600,7 +599,7 @@ function ResultPanel({
               color: subtypeName ? "rgb(52 199 89)" : "rgb(255 100 80)",
             }}
           >
-            {subtypeName ? "Tipas atpažintas" : "Tipas neatpažintas"}
+            {subtypeName ? t("scan.typeRecognized") : t("scan.typeNotRecognized")}
           </span>
           <span
             className="rounded-full px-2.5 py-0.5 text-xs font-medium"
@@ -610,7 +609,7 @@ function ResultPanel({
               border: `1px solid ${CONFIDENCE_COLOR[result.prediction.confidence]}40`,
             }}
           >
-            Tikslumas: {CONFIDENCE_LABEL[result.prediction.confidence]}
+            {t("scan.accuracy")}: {t(`scan.${result.prediction.confidence}` as any)}
           </span>
         </div>
 
@@ -620,7 +619,7 @@ function ResultPanel({
               className="text-xs uppercase tracking-wide"
               style={{ color: "rgb(70 90 115)" }}
             >
-              Atpažintas tipas
+              {t("scan.recognizedType")}
             </span>
             <p
               className="mt-0.5 text-base font-semibold"
@@ -631,7 +630,7 @@ function ResultPanel({
           </div>
         ) : (
           <p className="text-sm" style={{ color: "rgb(130 145 170)" }}>
-            Nepavyko priskirti nuotraukos jokiam turimam lankytinų vietų tipui.
+            {t("scan.failedAssign")}
           </p>
         )}
       </div>
@@ -639,15 +638,15 @@ function ResultPanel({
       {subtypeName && (
         <section>
           <p className="mb-3 text-xs" style={{ color: "rgb(130 145 170)" }}>
-            Rasta{" "}
+            {t("place.found")}{" "}
             <span
               className="font-semibold"
               style={{ color: "rgb(230 236 246)" }}
             >
               {result.total}
             </span>{" "}
-            panašių vietų{radiusKm ? ` iki ${radiusKm} km atstumu` : ""}
-            {matchesLoading ? " · atnaujinama..." : ""}
+            {t("scan.similarPlaces")}{radiusKm ? ` ${t("scan.uptoRadius")} ${radiusKm} km` : ""}
+            {matchesLoading ? ` · ${t("scan.updating")}` : ""}
           </p>
 
           {matchesError && (
@@ -676,11 +675,11 @@ function ResultPanel({
                 className="py-5 text-center text-xs"
                 style={{ color: "rgb(130 145 170)" }}
               >
-                {loadingMore && "Kraunama daugiau vietų..."}
+                {loadingMore && t("place.loadingMore")}
                 {!loadingMore &&
                   !matchesLoading &&
                   result.items.length >= result.total &&
-                  "Pasiekėte sąrašo pabaigą"}
+                  t("place.endOfList")}
               </div>
             </>
           ) : (
@@ -692,7 +691,7 @@ function ResultPanel({
                 color: "rgb(130 145 170)",
               }}
             >
-              Šiam tipui objektų nerasta.
+              {t("scan.noObjects")}
             </div>
           )}
         </section>

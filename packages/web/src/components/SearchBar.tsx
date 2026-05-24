@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "../hooks/useTranslation";
 
 interface SearchBarProps {
   value: string;
@@ -15,8 +16,9 @@ export function SearchBar({
   onGpsRequest,
   gpsLoading,
   gpsActive = false,
-  placeholder = "Ieškoti vietų...",
+  placeholder,
 }: SearchBarProps) {
+  const { t } = useTranslation();
   const [localValue, setLocalValue] = useState(value);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -63,7 +65,7 @@ export function SearchBar({
           id="search-input"
           type="search"
           className="input pl-10 pr-10"
-          placeholder={placeholder}
+          placeholder={placeholder || t("search.placeholder")}
           value={localValue}
           onChange={handleChange}
           autoComplete="off"
@@ -97,7 +99,7 @@ export function SearchBar({
         id="gps-btn"
         onClick={onGpsRequest}
         disabled={gpsLoading}
-        title="Naudoti mano lokaciją"
+        title={t("search.useLocation")}
         className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl transition-all"
         style={{
           background:

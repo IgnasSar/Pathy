@@ -1,7 +1,9 @@
 import { useState } from "react";
 import type { PlaceSummary } from "@pathy/shared";
 import { useRouteStore } from "../store/routeStore";
-import { CATEGORY_ICONS, CATEGORY_LABELS } from "../lib/placeCategoryMeta";
+import { CATEGORY_ICONS } from "../lib/placeCategoryMeta";
+import { useTranslation } from "../hooks/useTranslation";
+import type { TranslationKey } from "../i18n/translations";
 
 interface PlaceCardProps {
   place: PlaceSummary;
@@ -12,6 +14,7 @@ export function PlaceCard({ place, onClick }: PlaceCardProps) {
   const { addPlace, removePlace, hasPlace } = useRouteStore();
   const isAdded = hasPlace(place.id);
   const [toast, setToast] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   function handleAddRemove(event: React.MouseEvent) {
     event.stopPropagation();
@@ -30,12 +33,12 @@ export function PlaceCard({ place, onClick }: PlaceCardProps) {
 
   const visitHours =
     place.recommendedVisitMinutes >= 60
-      ? `${Math.floor(place.recommendedVisitMinutes / 60)}h ${
+      ? `${Math.floor(place.recommendedVisitMinutes / 60)}${t("place.h")} ${
           place.recommendedVisitMinutes % 60 > 0
-            ? `${place.recommendedVisitMinutes % 60}min`
+            ? `${place.recommendedVisitMinutes % 60}${t("place.min")}`
             : ""
         }`
-      : `${place.recommendedVisitMinutes}min`;
+      : `${place.recommendedVisitMinutes}${t("place.min")}`;
 
   return (
     <article
@@ -62,7 +65,7 @@ export function PlaceCard({ place, onClick }: PlaceCardProps) {
 
         <div className="absolute left-2 top-2">
           <span className={`badge badge-${place.category}`}>
-            {CATEGORY_ICONS[place.category]} {CATEGORY_LABELS[place.category]}
+            {CATEGORY_ICONS[place.category]} {t(`cat.${place.category}` as TranslationKey)}
           </span>
         </div>
 
@@ -130,7 +133,7 @@ export function PlaceCard({ place, onClick }: PlaceCardProps) {
                 >
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
-                Prideta
+                {t("place.added")}
               </>
             ) : (
               <>
@@ -146,7 +149,7 @@ export function PlaceCard({ place, onClick }: PlaceCardProps) {
                   <line x1="12" y1="5" x2="12" y2="19" />
                   <line x1="5" y1="12" x2="19" y2="12" />
                 </svg>
-                Prideti
+                {t("place.add")}
               </>
             )}
           </button>

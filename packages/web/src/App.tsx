@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { RouteStoreProvider, useRouteStore } from "./store/routeStore";
+import { LangStoreProvider } from "./store/langStore";
 import { Header } from "./components/Header";
 import { BottomNav } from "./components/BottomNav";
 import { SearchView } from "./views/SearchView";
@@ -49,9 +50,11 @@ function AppShell() {
 
 function App() {
   return (
-    <RouteStoreProvider>
-      <AppShell />
-    </RouteStoreProvider>
+    <LangStoreProvider>
+      <RouteStoreProvider>
+        <AppShell />
+      </RouteStoreProvider>
+    </LangStoreProvider>
   );
 }
 

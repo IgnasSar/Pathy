@@ -1,5 +1,6 @@
 import type { PlaceSummary } from "@pathy/shared";
 import { PlaceCard } from "./PlaceCard";
+import { useTranslation } from "../hooks/useTranslation";
 
 interface PlaceListProps {
   places: PlaceSummary[];
@@ -37,6 +38,8 @@ export function PlaceList({
   loadingMore,
   loadMoreRef,
 }: PlaceListProps) {
+  const { t } = useTranslation();
+
   if (loading) {
     return (
       <div className="grid grid-cols-1 gap-4 px-4 pb-4 sm:grid-cols-2">
@@ -52,7 +55,7 @@ export function PlaceList({
       <div className="flex flex-col items-center justify-center px-8 py-16 text-center">
         <div className="mb-4 text-5xl">⚠️</div>
         <p className="font-semibold mb-1" style={{ color: "rgb(255 69 58)" }}>
-          Klaida
+          {t("error.title")}
         </p>
         <p className="text-sm" style={{ color: "rgb(130 145 170)" }}>
           {error}
@@ -66,10 +69,10 @@ export function PlaceList({
       <div className="flex flex-col items-center justify-center px-8 py-16 text-center">
         <div className="mb-4 text-5xl">🔍</div>
         <p className="font-semibold mb-1" style={{ color: "rgb(230 236 246)" }}>
-          Vietų nerasta
+          {t("place.notFound")}
         </p>
         <p className="text-sm" style={{ color: "rgb(130 145 170)" }}>
-          Pabandykite pakeisti paieškos žodžius arba filtrus.
+          {t("place.tryChange")}
         </p>
       </div>
     );
@@ -79,11 +82,11 @@ export function PlaceList({
     <div className="px-4 pb-24">
       {/* Result count */}
       <p className="mb-3 text-xs" style={{ color: "rgb(130 145 170)" }}>
-        Rasta{" "}
+        {t("place.found")}{" "}
         <span className="font-semibold" style={{ color: "rgb(230 236 246)" }}>
           {total}
         </span>{" "}
-        vietų
+        {t("place.places")}
       </p>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {places.map((place) => (
@@ -96,8 +99,8 @@ export function PlaceList({
         className="py-5 text-center text-xs"
         style={{ color: "rgb(130 145 170)" }}
       >
-        {loadingMore && "Kraunama daugiau vietų..."}
-        {!loadingMore && !hasMore && "Pasiekėte sąrašo pabaigą"}
+        {loadingMore && t("place.loadingMore")}
+        {!loadingMore && !hasMore && t("place.endOfList")}
       </div>
     </div>
   );

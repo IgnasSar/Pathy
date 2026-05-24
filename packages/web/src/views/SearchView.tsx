@@ -9,6 +9,7 @@ import { api } from "../api/client";
 import { SearchBar } from "../components/SearchBar";
 import { FilterBar } from "../components/FilterBar";
 import { PlaceList } from "../components/PlaceList";
+import { useTranslation } from "../hooks/useTranslation";
 
 interface Coords {
   lat: number;
@@ -16,6 +17,7 @@ interface Coords {
 }
 
 export function SearchView() {
+  const { t } = useTranslation();
   // Filters state
   const [filters, setFilters] = useState<PlaceFiltersResponse | null>(null);
   const [query, setQuery] = useState("");
@@ -73,7 +75,7 @@ export function SearchView() {
         );
         setTotal(res.total);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Nepavyko gauti vietų.");
+        setError(err instanceof Error ? err.message : t("error.placesFailed"));
       } finally {
         setLoading(false);
         setLoadingMore(false);
@@ -130,7 +132,7 @@ export function SearchView() {
     }
 
     if (!navigator.geolocation) {
-      setGpsError("Jūsų naršyklė nepalaiko GPS.");
+      setGpsError(t("error.noGps"));
       return;
     }
     setGpsLoading(true);
@@ -141,7 +143,7 @@ export function SearchView() {
         setGpsLoading(false);
       },
       () => {
-        setGpsError("Nepavyko gauti lokacijos. Patikrinkite leidimus.");
+        setGpsError(t("error.gpsFailed"));
         setGpsLoading(false);
       },
       { timeout: 8000 },
