@@ -223,3 +223,40 @@ export type RecognizeResponse = {
   limit: number;
   offset: number;
 };
+
+// ── Saved Routes ─────────────────────────────────────────────────────────────
+
+export type SavedRouteSummary = {
+  id: string;
+  name: string;
+  placeIds: string[];
+  transportType: TransportType;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type SavedRoute = SavedRouteSummary & {
+  places: PlaceDetail[];
+};
+
+export type SavedRouteListResponse = {
+  items: SavedRouteSummary[];
+};
+
+export type SavedRouteDetailResponse = {
+  item: SavedRoute;
+};
+
+export type CreateSavedRouteRequest = {
+  deviceId: string;
+  name: string;
+  placeIds: string[];
+  transportType: TransportType;
+};
+
+export type UpdateSavedRouteRequest = {
+  deviceId: string;
+  name?: string;
+  placeIds?: string[];
+  transportType?: TransportType;
+};

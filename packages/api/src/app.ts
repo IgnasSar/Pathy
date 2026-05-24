@@ -13,6 +13,10 @@ import {
   type RecognizeResponse,
   type RoutePreviewRequest,
   type RoutePreviewResponse,
+  type SavedRouteListResponse,
+  type SavedRouteDetailResponse,
+  type CreateSavedRouteRequest,
+  type UpdateSavedRouteRequest,
 } from "@pathy/shared";
 import {
   getPlaceById,
@@ -21,6 +25,13 @@ import {
   getSourceSubTypes,
   listPlaces,
 } from "./db/placesRepository.js";
+import {
+  listSavedRoutes,
+  getSavedRoute,
+  createSavedRoute,
+  updateSavedRoute,
+  deleteSavedRoute,
+} from "./db/savedRoutesRepository.js";
 import {
   estimateDurationMinutes,
   haversineKm,
@@ -410,6 +421,158 @@ export function buildApp() {
 
     return response;
   });
+
+  // ── Saved Routes CRUD ──────────────────────────────────────────────────────
+
+  app.get<{ Querystring: { deviceId?: string } }>(
+    "/api/saved-routes",
+    async (request, reply) => {
+      const { deviceId } = request.query;
+      if (!deviceId || deviceId.trim() === "") {
+        const errorResponse: ApiErrorResponse = {
+          error: "deviceId is required.",
+        };
+        return reply.code(400).send(errorResponse);
+      }
+      const items = await listSavedRoutes(deviceId.trim());
+      const response: SavedRouteListResponse = { items };
+      return response;
+    },
+  );
+
+  app.get<{ Params: { id: string }; Querystring: { deviceId?: string } }>(
+    "/api/saved-routes/:id",
+    async (request, reply) => {
+      const { deviceId } = request.query;
+      if (!deviceId || deviceId.trim() === "") {
+        const errorResponse: ApiErrorResponse = {
+          error: "deviceId is required.",
+        };
+        return reply.code(400).send(errorResponse);
+      }
+      const item = await getSavedRoute(request.params.id, deviceId.trim());
+      if (!item) {
+        const errorResponse: ApiErrorResponse = {
+          error: "Saved route not found.",
+        };
+        return reply.code(404).send(errorResponse);
+      }
+      const response: SavedRouteDetailResponse = { item };
+      return response;
+    },
+  );
+
+  app.post("/api/saved-routes", async (request, reply) => {
+    const body = request.body as unknown;
+    if (
+      typeof body !== "object" ||
+      body === null ||
+      !("deviceId" in body) ||
+      typeof (body as Record<string, unknown>).deviceId !== "string" ||
+      !("name" in body) ||
+      typeof (body as Record<string, unknown>).name !== "string" ||
+      !("placeIds" in body) ||
+      !Array.isArray((body as Record<string, unknown>).placeIds) ||
+      !("transportType" in body) ||
+      !TRANSPORT_TYPES.includes(
+        (body as Record<string, unknown>).transportType as any,
+      )
+    ) {
+      const errorResponse: ApiErrorResponse = {
+        error:
+          "Body must contain deviceId, name, placeIds (array), and transportType.",
+      };
+      return reply.code(400).send(errorResponse);
+    }
+    const req = body as CreateSavedRouteRequest;
+    if (req.name.trim().length === 0) {
+      const errorResponse: ApiErrorResponse = {
+        error: "name cannot be empty.",
+      };
+      return reply.code(400).send(errorResponse);
+    }
+    if (req.placeIds.length < 2) {
+      const errorResponse: ApiErrorResponse = {
+        error: "At least 2 places are required.",
+      };
+      return reply.code(400).send(errorResponse);
+    }
+    const item = await createSavedRoute(
+      req.deviceId.trim(),
+      req.name.trim(),
+      req.placeIds,
+      req.transportType,
+    );
+    return reply.code(201).send({ item });
+  });
+
+  app.patch<{ Params: { id: string } }>(
+    "/api/saved-routes/:id",
+    async (request, reply) => {
+      const body = request.body as unknown;
+      if (
+        typeof body !== "object" ||
+        body === null ||
+        !("deviceId" in body) ||
+        typeof (body as Record<string, unknown>).deviceId !== "string"
+      ) {
+        const errorResponse: ApiErrorResponse = {
+          error: "Body must contain deviceId.",
+        };
+        return reply.code(400).send(errorResponse);
+      }
+      const req = body as UpdateSavedRouteRequest;
+      if (
+        req.transportType !== undefined &&
+        !TRANSPORT_TYPES.includes(req.transportType)
+      ) {
+        const errorResponse: ApiErrorResponse = {
+          error: "Unknown transport type.",
+        };
+        return reply.code(400).send(errorResponse);
+      }
+      const item = await updateSavedRoute(
+        request.params.id,
+        req.deviceId.trim(),
+        {
+          name: req.name?.trim(),
+          placeIds: req.placeIds,
+          transportType: req.transportType,
+        },
+      );
+      if (!item) {
+        const errorResponse: ApiErrorResponse = {
+          error: "Saved route not found.",
+        };
+        return reply.code(404).send(errorResponse);
+      }
+      return { item };
+    },
+  );
+
+  app.delete<{ Params: { id: string }; Querystring: { deviceId?: string } }>(
+    "/api/saved-routes/:id",
+    async (request, reply) => {
+      const { deviceId } = request.query;
+      if (!deviceId || deviceId.trim() === "") {
+        const errorResponse: ApiErrorResponse = {
+          error: "deviceId is required.",
+        };
+        return reply.code(400).send(errorResponse);
+      }
+      const deleted = await deleteSavedRoute(
+        request.params.id,
+        deviceId.trim(),
+      );
+      if (!deleted) {
+        const errorResponse: ApiErrorResponse = {
+          error: "Saved route not found.",
+        };
+        return reply.code(404).send(errorResponse);
+      }
+      return reply.code(204).send();
+    },
+  );
 
   return app;
 }

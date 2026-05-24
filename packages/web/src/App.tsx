@@ -6,8 +6,9 @@ import { BottomNav } from "./components/BottomNav";
 import { SearchView } from "./views/SearchView";
 import { RouteView } from "./views/RouteView";
 import { ScanView } from "./views/ScanView";
+import { SavedRoutesView } from "./views/SavedRoutesView";
 
-type Tab = "search" | "scan" | "route";
+export type Tab = "search" | "scan" | "route" | "saved";
 
 function AppShell() {
   const [activeTab, setActiveTab] = useState<Tab>("search");
@@ -35,6 +36,12 @@ function AppShell() {
         </div>
         <div style={{ display: activeTab === "route" ? "block" : "none" }}>
           <RouteView />
+        </div>
+        <div style={{ display: activeTab === "saved" ? "block" : "none" }}>
+          <SavedRoutesView
+            isActive={activeTab === "saved"}
+            onApplyRoute={() => setActiveTab("route")}
+          />
         </div>
       </main>
 

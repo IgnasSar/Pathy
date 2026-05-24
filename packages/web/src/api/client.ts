@@ -7,16 +7,25 @@ import type {
   RecognizeResponse,
   RoutePreviewRequest,
   RoutePreviewResponse,
+  SavedRouteListResponse,
+  SavedRouteDetailResponse,
+  CreateSavedRouteRequest,
+  UpdateSavedRouteRequest,
 } from "@pathy/shared";
 
 const BASE = "/api";
 
 async function get<T>(path: string): Promise<T> {
   const res = await fetch(`${BASE}${path}`);
-  const data = (await res.json()) as T;
+  let data: unknown;
+  try {
+    data = await res.json();
+  } catch {
+    throw new Error("Request failed");
+  }
   if (!res.ok)
     throw new Error((data as { error?: string }).error ?? "Request failed");
-  return data;
+  return data as T;
 }
 
 async function post<T>(path: string, body: unknown): Promise<T> {
@@ -25,10 +34,46 @@ async function post<T>(path: string, body: unknown): Promise<T> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-  const data = (await res.json()) as T;
+  let data: unknown;
+  try {
+    data = await res.json();
+  } catch {
+    throw new Error("Request failed");
+  }
   if (!res.ok)
     throw new Error((data as { error?: string }).error ?? "Request failed");
-  return data;
+  return data as T;
+}
+
+async function patch<T>(path: string, body: unknown): Promise<T> {
+  const res = await fetch(`${BASE}${path}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  let data: unknown;
+  try {
+    data = await res.json();
+  } catch {
+    throw new Error("Request failed");
+  }
+  if (!res.ok)
+    throw new Error((data as { error?: string }).error ?? "Request failed");
+  return data as T;
+}
+
+async function del(path: string): Promise<void> {
+  const res = await fetch(`${BASE}${path}`, {
+    method: "DELETE",
+  });
+  if (!res.ok) {
+    let err = "Request failed";
+    try {
+      const data = await res.json();
+      if (data.error) err = data.error;
+    } catch {}
+    throw new Error(err);
+  }
 }
 
 export interface PlacesQuery {
@@ -86,4 +131,20 @@ export const api = {
 
   routePreview: (req: RoutePreviewRequest) =>
     post<RoutePreviewResponse>("/route-preview", req),
+
+  savedRoutes: {
+    list: (deviceId: string) =>
+      get<SavedRouteListResponse>(`/saved-routes?deviceId=${deviceId}`),
+    get: (id: string, deviceId: string) =>
+      get<SavedRouteDetailResponse>(`/saved-routes/${id}?deviceId=${deviceId}`),
+    create: (req: CreateSavedRouteRequest) =>
+      post<{ item: SavedRouteDetailResponse["item"] }>("/saved-routes", req),
+    update: (id: string, req: UpdateSavedRouteRequest) =>
+      patch<{ item: SavedRouteDetailResponse["item"] }>(
+        `/saved-routes/${id}`,
+        req,
+      ),
+    delete: (id: string, deviceId: string) =>
+      del(`/saved-routes/${id}?deviceId=${deviceId}`),
+  },
 };

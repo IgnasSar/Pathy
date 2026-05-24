@@ -57,12 +57,8 @@
           "name": "place_images_place_id_places_id_fk",
           "tableFrom": "place_images",
           "tableTo": "places",
-          "columnsFrom": [
-            "place_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["place_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -96,12 +92,8 @@
           "name": "place_tags_place_id_places_id_fk",
           "tableFrom": "place_tags",
           "tableTo": "places",
-          "columnsFrom": [
-            "place_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["place_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -109,10 +101,7 @@
       "compositePrimaryKeys": {
         "place_tags_place_id_tag_pk": {
           "name": "place_tags_place_id_tag_pk",
-          "columns": [
-            "place_id",
-            "tag"
-          ]
+          "columns": ["place_id", "tag"]
         }
       },
       "uniqueConstraints": {},
@@ -336,9 +325,7 @@
         "places_slug_unique": {
           "name": "places_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         }
       },
       "policies": {},

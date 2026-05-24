@@ -26,7 +26,18 @@ interface RouteMapViewProps {
 const LITHUANIA_CENTER: L.LatLngTuple = [55.1694, 23.8813];
 const DEFAULT_ZOOM = 7;
 
-const SEGMENT_COLORS = ["#34c759", "#5e9eff", "#ff9f0a", "#af52de", "#ff6b6b", "#00c7be", "#ffd60a", "#ff375f", "#30d158", "#64d2ff"];
+const SEGMENT_COLORS = [
+  "#34c759",
+  "#5e9eff",
+  "#ff9f0a",
+  "#af52de",
+  "#ff6b6b",
+  "#00c7be",
+  "#ffd60a",
+  "#ff375f",
+  "#30d158",
+  "#64d2ff",
+];
 
 function makeDirArrow(bearing: number, color: string) {
   return L.divIcon({
@@ -42,7 +53,9 @@ function bearingDeg(from: Coordinates, to: Coordinates) {
   const lat2 = (to.lat * Math.PI) / 180;
   const dLng = ((to.lng - from.lng) * Math.PI) / 180;
   const y = Math.sin(dLng) * Math.cos(lat2);
-  const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng);
+  const x =
+    Math.cos(lat1) * Math.sin(lat2) -
+    Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng);
   return ((Math.atan2(y, x) * 180) / Math.PI + 360) % 360;
 }
 
@@ -63,7 +76,11 @@ function makeNumberedIcon(n: number, isFirst: boolean, isLast: boolean) {
   });
 }
 
-export function RouteMapView({ places, routePath, routeSegments }: RouteMapViewProps) {
+export function RouteMapView({
+  places,
+  routePath,
+  routeSegments,
+}: RouteMapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const layerGroupRef = useRef<L.LayerGroup | null>(null);
@@ -149,7 +166,9 @@ export function RouteMapView({ places, routePath, routeSegments }: RouteMapViewP
         const color = SEGMENT_COLORS[i % SEGMENT_COLORS.length];
         const segLatLngs: L.LatLngTuple[] = seg.map((c) => [c.lat, c.lng]);
         allLatLngs.push(...segLatLngs);
-        group.addLayer(L.polyline(segLatLngs, { color, weight: 5, opacity: 0.92 }));
+        group.addLayer(
+          L.polyline(segLatLngs, { color, weight: 5, opacity: 0.92 }),
+        );
 
         // Direction arrow at midpoint
         if (seg.length >= 2) {
@@ -158,7 +177,12 @@ export function RouteMapView({ places, routePath, routeSegments }: RouteMapViewP
           const to = seg[midIdx];
           const mid = seg[midIdx];
           const bearing = bearingDeg(from, to);
-          group.addLayer(L.marker([mid.lat, mid.lng], { icon: makeDirArrow(bearing, color), interactive: false }));
+          group.addLayer(
+            L.marker([mid.lat, mid.lng], {
+              icon: makeDirArrow(bearing, color),
+              interactive: false,
+            }),
+          );
         }
       });
       if (allLatLngs.length >= 2) {
@@ -241,7 +265,8 @@ export function RouteMapView({ places, routePath, routeSegments }: RouteMapViewP
             gap: "8px",
           }}
         >
-          <span style={{ color: "#34c759", marginRight: 2 }}>●</span> {t("map.start")}
+          <span style={{ color: "#34c759", marginRight: 2 }}>●</span>{" "}
+          {t("map.start")}
           <span style={{ color: "#ff453a", marginRight: 2, marginLeft: 6 }}>
             ●
           </span>{" "}

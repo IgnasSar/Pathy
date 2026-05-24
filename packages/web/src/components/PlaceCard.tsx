@@ -65,7 +65,8 @@ export function PlaceCard({ place, onClick }: PlaceCardProps) {
 
         <div className="absolute left-2 top-2">
           <span className={`badge badge-${place.category}`}>
-            {CATEGORY_ICONS[place.category]} {t(`cat.${place.category}` as TranslationKey)}
+            {CATEGORY_ICONS[place.category]}{" "}
+            {t(`cat.${place.category}` as TranslationKey)}
           </span>
         </div>
 

@@ -48,12 +48,13 @@ export function LangStoreProvider({ children }: { children: ReactNode }) {
         setLanguage,
       },
     },
-    children
+    children,
   );
 }
 
 export function useLangStore(): LangStore {
   const ctx = useContext(LangContext);
-  if (!ctx) throw new Error("useLangStore must be used inside LangStoreProvider");
+  if (!ctx)
+    throw new Error("useLangStore must be used inside LangStoreProvider");
   return ctx;
 }

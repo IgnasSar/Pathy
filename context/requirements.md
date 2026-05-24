@@ -30,11 +30,11 @@ Last synced: 2026-05-24
   Sistema leidžia vartotojui įvesti objekto pavadinimą ir rasti labiausiai atitinkančius objektus.
 
   _Priėmimo kriterijai:_
-
   - Vartotojas gali įvesti pilną arba dalinį objekto pavadinimą.
   - Sistema pagal įvestą tekstą identifikuoja labiausiai atitinkančius objektus.
   - Paieškai didžiosios ir mažosios raidės įtakos nedaro.
   - Jei nepavyksta identifikuoti objekto → rodomas pranešimas vartotojui.
+
 - **Ryšiai:**
   - _Blokuoja (Blocks):_ ECS-7, ECS-30
   - _Susiję su (Relates):_ ECS-7, ECS-11, ECS-9, ECS-25
@@ -69,12 +69,12 @@ Last synced: 2026-05-24
   Sistema turi apdoroti vartotojo įkeltą nuotrauką, naudojant Google Vision API (arba kitą pasirinktą paslaugą) nustatyti joje esantį objektą ir susieti jį su duomenų bazės įrašu.
 
   _Priėmimo kriterijai:_
-
   - Sistema leidžia įkelti nuotrauką JPG, PNG formatais (iki 5MB).
   - Identifikavimo procesas (nuo įkėlimo iki rezultato) trunka ne ilgiau 5 sekundžių.
   - DI modelio sėkmingo atpažinimo tikslumas turi būti ne mažesnis nei 90%.
   - Jei objektas atpažįstamas, ekrane parodomas jo pavadinimas, nuotrauka iš DB ir trumpas aprašymas.
   - Jei objektas neatpažįstamas (pvz., nufotografuotas neaiškus vaizdas), sistema parodo klaidą: „Objektas nerastas, bandykite kitą kampą“.
+
 - **Ryšiai:**
   - _Blokuoja (Blocks):_ ECS-11
   - _Priklauso nuo (Blocked by):_ ECS-32
@@ -109,13 +109,13 @@ Last synced: 2026-05-24
   Kaip vartotojas, noriu įkelti nuotrauką iš savo įrenginio galerijos ieškant objektų, kad galėčiau greitai atpažinti matytą vietą.
 
   _Priėmimo kriterijai:_
-
   - Paieškos skiltyje yra matomas mygtukas/ikona nuotraukai įkelti.
   - Paspaudus mygtuką, atidaromas įrenginio failų pasirinkimo langas.
   - Sistema leidžia įkelti tik standartinių formatų vaizdus (JPG, PNG). Saugumui užtikrinti tikrinamas ne tik failo plėtinys, bet ir vidinis turinis, kad nebūtų įkelti kenksmingi duomenys.
   - Siekiant taupyti mobiliojo ryšio duomenis, įkeliamos nuotraukos yra automatiškai mažinamos (optimizuojamos) prieš siuntimą.
   - Nuotraukos įkėlimas ir apdorojimas sistemoje turi veikti nepriklausomai nuo to, ar dirbtinio intelekto (AI) modelis tuo metu yra pasiekiamas.
   - Įkėlus netinkamo formato, pažeistą ar per didelį failą, vartotojui rodomas aiškus klaidos pranešimas.
+
 - **Ryšiai:**
   - _Blokuoja (Blocks):_ ECS-25
   - _Susiję su (Relates):_ ECS-9
@@ -154,11 +154,11 @@ Last synced: 2026-05-24
   Sistema leidžia vartotojui pasirinkti arba įvesti norimą atstumo spindulį nuo savo buvimo vietos arba pasirinktos lokacijos. Paspaudus filtravimo mygtuką, sistema pateikia tik tuos objektus, kurie patenka į nurodytą atstumą.
 
   _Priėmimo kriterijai:_
-
   - Vartotojas gali pasirinkti atstumą iš pateiktų reikšmių (pvz., 1 km, 5 km, 10 km) arba įvesti savo atstumo reikšmę.
   - Pakeitus atstumo reikšmę, filtravimas įvykdomas dar kartą paspaudus filtravimo mygtuką.
   - Sistema pateikia tik tuos objektus, kurie patenka į nurodytą atstumą.
   - Jei nėra objektų nurodytame spindulyje - rodomas pranešimas vartotojui.
+
 - **Ryšiai:**
   - _Blokuoja (Blocks):_ ECS-8
   - _Susiję su (Relates):_ ECS-10, ECS-20, ECS-32, ECS-14, ECS-8
@@ -188,13 +188,11 @@ Last synced: 2026-05-24
 - **Aprašymas ir priėmimo kriterijai:**
   Noriu, kad sistema pati nustatytų mano GPS koordinates, jog nereiktų jų vesti rankiniu būdu planuojant maršrutą.
 
-
-
   _Priėmimo kriterijai:_
-
   - Sistema paprašo leidimo naudoti GPS duomenis (Browser/OS prompt).
   - Sėkmingai gavus koordinates, pagrindiniame lange rodomas atstumas iki kiekvieno objekto kilometrais.
   - Jei vartotojas nesuteikia leidimo, sistema leidžia maršruto pradžios tašką (miestą ar adresą) įvesti rankiniu būdu.
+
 - **Sub-užduotys:**
   - [Done] [ECS-77] Vartotojo koordinačių perdavimo į serverį API sukūrimas.
   - [Done] [ECS-78] Objektų filtravimo pagal gautas koordinates SQL užklausa.
@@ -262,12 +260,12 @@ Last synced: 2026-05-24
   Sistema turi automatiškai fiksuoti kritines klaidas (pvz., kaip API sutrikimai) ir apie jas informuoti administratorius.
 
   _Priėmimo kriterijai:_
-
   - Visos kritinės klaidos automatiškai išsaugomos naudojant įrašantį įrankį, pvz. “Sentry”.
   - Fiksuojamas tikslus klaidos laikas, tipas, modulis ir pradiniai užklausos duomenys (be jautrios informacijos).
   - Administratoriams el. laiškas siunčiamas tik įvykus kritinei klaidai. Smulkios klaidos (pvz., 404 ar validacijos klaidos) administratoriaus pašto dėžutės nepasiekia.
   - Įvykus klaidai, vartotojui rodomas standartizuotas pranešimas: „Atsiprašome, įvyko nenumatyta techninė klaida. Mūsų komanda jau informuota ir sprendžia problemą. Prašome pabandyti vėliau.“ (Jokių stack trace ar vidinių klaidų kodų).
   - Klaidų registravimas ir pranešimų siuntimas vyksta fone (asinchroniškai) ir neturi jokios įtakos vartotojo sąsajos greitaveikai.
+
 - **Ryšiai:**
   - _Priklauso nuo (Blocked by):_ ECS-10
   - _Susiję su (Relates):_ ECS-33, ECS-26, ECS-21, ECS-24, ECS-7
@@ -320,13 +318,13 @@ Last synced: 2026-05-24
   Kaip vartotojas, noriu pridėti pasirinktą objektą į maršrutą iš objekto kortelės, kad galėčiau sudaryti planuojamų aplankyti vietų sąrašą prieš generuojant kelionės maršrutą.
 
   Priėmimo kriterijai:
-
   - Objekto peržiūros lange yra mygtukas "Pridėti į maršrutą".
   - Paspaudus mygtuką, objektas atsiranda pasirinktų objektų sąraše.
   - Tas pats objektas negali būti pridėtas antrą kartą.
   - Po sėkmingo pridėjimo vartotojui rodomas aiškus patvirtinimas.
   - Po pridėjimo atsinaujina pasirinktų objektų skaičius.
   - Maksimalus maršruto objektų skaičius - 10. Viršijus limitą, rodomas klaidos pranešimas.
+
 - **Ryšiai:**
   - _Blokuoja (Blocks):_ ECS-12, ECS-56, ECS-67
   - _Susiję su (Relates):_ ECS-12, ECS-65, ECS-66, ECS-68
@@ -348,13 +346,13 @@ Last synced: 2026-05-24
   Kaip vartotojas, noriu matyti visų pasirinktų objektų sąrašą prieš generuojant maršrutą, kad galėčiau peržiūrėti savo kelionės planą ir įsitikinti, jog pasirinkau tinkamas vietas.
 
   Priėmimo kriterijai:
-
   - Vartotojas mato pasirinktų objektų sąrašą atskiroje srityje arba lange.
   - Prie kiekvieno objekto rodomas bent pavadinimas.
   - Vartotojas gali keisti objektų tvarką sąraše naudojant drag-and-drop funkciją. Pagal nutylėjimą, rikiuojama pagal pridėjimo laiką (pirmiau pridėtas viršuje).
   - Rodomas bendras pasirinktų objektų kiekis.
   - Jei sąrašas tuščias, rodomas aiškus pranešimas, kad objektų dar nepasirinkta.
   - Sąrašas atsinaujina iš karto po objekto pridėjimo arba pašalinimo.
+
 - **Ryšiai:**
   - _Blokuoja (Blocks):_ ECS-65, ECS-11
   - _Priklauso nuo (Blocked by):_ ECS-37
@@ -433,10 +431,10 @@ Last synced: 2026-05-24
   Kaip vartotojas, noriu UI sąsajoje pasirinkti transporto priemonę, kad maršrutas būtų pritaikytas mano keliavimo būdui.
 
   Priėmimo kriterijai:
-
   - Vartotojas gali pasirinkti vieną transporto tipą iš pateiktų variantų UI sąsajoje
   - Pasirinktas transporto tipas yra išsaugomas sesijos metu
   - Jei transporto tipas nepasirinktas, maršruto generavimas nėra leidžiamas ir vartotojui rodomas pranešimas, kad reikia pasirinkti transporto tipą
+
 - **Ryšiai:**
   - _Blokuoja (Blocks):_ ECS-12, ECS-67
   - _Susiję su (Relates):_ ECS-12
@@ -458,12 +456,12 @@ Last synced: 2026-05-24
   Sistema turi apskaičiuoti kelionės trukmę tarp pasirinktų objektų, atsižvelgiant į atstumą ir pasirinktą transporto tipą.
 
   Priėmimo kriterijai:
-
   - Sistema apskaičiuoja bendrą maršruto trukmę naudodama API
   - Trukmė pateikiama vartotojui suprantamu formatu (pvz., valandos ir minutės)
   - Skaičiavimas naudoja pasirinktą transporto tipą
   - Pasikeitus objektams arba transportui, trukmė atnaujinama
   - Jei nepavyks gauti duomenų iš API, vartotojui rodomas klaidos pranešimas
+
 - **Ryšiai:**
   - _Susiję su (Relates):_ ECS-22, ECS-12, ECS-30
 - **Sub-užduotys:**

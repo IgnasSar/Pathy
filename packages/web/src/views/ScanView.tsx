@@ -156,8 +156,7 @@ export function ScanView() {
       setState({
         kind: "error",
         dataUrl,
-        message:
-          err instanceof Error ? err.message : t("error.scanFailed"),
+        message: err instanceof Error ? err.message : t("error.scanFailed"),
       });
     }
   }
@@ -341,7 +340,7 @@ export function ScanView() {
               <circle cx="8.5" cy="8.5" r="1.5" />
               <polyline points="21 15 16 10 5 21" />
             </svg>
-              <span
+            <span
               className="text-center text-sm font-medium"
               style={{ color: "rgb(130 150 175)" }}
             >
@@ -599,7 +598,9 @@ function ResultPanel({
               color: subtypeName ? "rgb(52 199 89)" : "rgb(255 100 80)",
             }}
           >
-            {subtypeName ? t("scan.typeRecognized") : t("scan.typeNotRecognized")}
+            {subtypeName
+              ? t("scan.typeRecognized")
+              : t("scan.typeNotRecognized")}
           </span>
           <span
             className="rounded-full px-2.5 py-0.5 text-xs font-medium"
@@ -609,7 +610,8 @@ function ResultPanel({
               border: `1px solid ${CONFIDENCE_COLOR[result.prediction.confidence]}40`,
             }}
           >
-            {t("scan.accuracy")}: {t(`scan.${result.prediction.confidence}` as any)}
+            {t("scan.accuracy")}:{" "}
+            {t(`scan.${result.prediction.confidence}` as any)}
           </span>
         </div>
 
@@ -645,7 +647,8 @@ function ResultPanel({
             >
               {result.total}
             </span>{" "}
-            {t("scan.similarPlaces")}{radiusKm ? ` ${t("scan.uptoRadius")} ${radiusKm} km` : ""}
+            {t("scan.similarPlaces")}
+            {radiusKm ? ` ${t("scan.uptoRadius")} ${radiusKm} km` : ""}
             {matchesLoading ? ` · ${t("scan.updating")}` : ""}
           </p>
 

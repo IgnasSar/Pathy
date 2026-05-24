@@ -1,7 +1,5 @@
 import type { PlaceCategory } from "@pathy/shared";
 
-
-
 export const CATEGORY_ICONS: Record<PlaceCategory, string> = {
   museum: "🏛️",
   castle: "🏰",

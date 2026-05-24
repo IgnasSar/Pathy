@@ -3,31 +3,42 @@ import type { RoutePreviewResponse, TransportType } from "@pathy/shared";
 import { useRouteStore } from "../store/routeStore";
 import { RouteMapView } from "../components/RouteMapView";
 import { api } from "../api/client";
+import { deviceId } from "../store/deviceStore";
 import { useTranslation } from "../hooks/useTranslation";
 
 type ViewMode = "list" | "map";
 
-const TRANSPORTS: { key: string; emoji: string }[] = [
+const TRANSPORTS: { key: TransportType; emoji: string }[] = [
   { key: "car", emoji: "🚗" },
   { key: "bike", emoji: "🚲" },
   { key: "walk", emoji: "🚶" },
 ];
 
 export function RouteView() {
-  const { selectedPlaces, removePlace, reorderPlaces, clearPlaces } =
-    useRouteStore();
+  const {
+    selectedPlaces,
+    transport,
+    setTransport,
+    removePlace,
+    reorderPlaces,
+    clearPlaces,
+  } = useRouteStore();
   const [viewMode, setViewMode] = useState<ViewMode>("list");
-  const [transport, setTransport] = useState<string | null>(null);
   const { t } = useTranslation();
 
   const [generating, setGenerating] = useState(false);
   const [routeData, setRouteData] = useState<RoutePreviewResponse | null>(null);
   const [genError, setGenError] = useState<string | null>(null);
 
+  const [showSaveForm, setShowSaveForm] = useState(false);
+  const [routeName, setRouteName] = useState("");
+  const [saving, setSaving] = useState(false);
+
   // Clear route data if user adds/removes elements
   useEffect(() => {
     setRouteData(null);
     setGenError(null);
+    setShowSaveForm(false);
   }, [selectedPlaces]);
 
   async function handleGenerateRoute() {
@@ -43,12 +54,33 @@ export function RouteView() {
       });
       setRouteData(res);
       setViewMode("map"); // auto-switch to map
+      setShowSaveForm(false);
     } catch (err) {
       setGenError(
         err instanceof Error ? err.message : t("error.genRouteFailed"),
       );
     } finally {
       setGenerating(false);
+    }
+  }
+
+  async function handleSaveRoute() {
+    if (!transport || selectedPlaces.length < 2 || !routeName.trim()) return;
+    setSaving(true);
+    try {
+      await api.savedRoutes.create({
+        deviceId,
+        name: routeName.trim(),
+        placeIds: selectedPlaces.map((p) => p.id),
+        transportType: transport as TransportType,
+      });
+      alert(t("saved.save") + " ✓");
+      setShowSaveForm(false);
+      setRouteName("");
+    } catch (err) {
+      alert(t("saved.errorSave"));
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -471,6 +503,60 @@ export function RouteView() {
             )}
             {generating ? t("route.calculating") : t("route.generate")}
           </button>
+
+          {/* Save Route Section */}
+          {routeData && !generating && (
+            <div className="mt-4 border-t border-[rgb(40_48_64)] pt-4">
+              {!showSaveForm ? (
+                <button
+                  onClick={() => setShowSaveForm(true)}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-[rgb(52_199_89_/_0.1)] py-2.5 text-sm font-semibold text-[rgb(52_199_89)] transition-colors hover:bg-[rgb(52_199_89_/_0.15)]"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                    <polyline points="17 21 17 13 7 13 7 21" />
+                    <polyline points="7 3 7 8 15 8" />
+                  </svg>
+                  {t("saved.saveRoute")}
+                </button>
+              ) : (
+                <div className="flex flex-col gap-3 rounded-xl bg-[rgb(22_26_35)] p-3">
+                  <input
+                    type="text"
+                    value={routeName}
+                    onChange={(e) => setRouteName(e.target.value)}
+                    placeholder={t("saved.routeName")}
+                    className="w-full rounded-lg border border-[rgb(40_48_64)] bg-[rgb(30_36_48)] px-3 py-2 text-sm text-white placeholder-[rgb(130_145_170)] outline-none focus:border-[rgb(52_199_89)]"
+                    autoFocus
+                  />
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setShowSaveForm(false)}
+                      className="flex-1 rounded-lg py-2 text-sm font-medium text-[rgb(130_145_170)] hover:bg-[rgb(40_48_64)]"
+                    >
+                      {t("saved.cancel")}
+                    </button>
+                    <button
+                      onClick={handleSaveRoute}
+                      disabled={saving || !routeName.trim()}
+                      className="flex-1 rounded-lg bg-[rgb(52_199_89)] py-2 text-sm font-semibold text-[#0a1408] transition-opacity disabled:opacity-50"
+                    >
+                      {saving ? "..." : t("saved.save")}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>

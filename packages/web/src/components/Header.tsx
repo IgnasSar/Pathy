@@ -125,8 +125,12 @@ export function Header({ onRouteClick }: HeaderProps) {
                   }}
                   className="px-4 py-2 text-xs text-left transition-colors font-medium hover:bg-white/5"
                   style={{
-                    color: language === lang ? "rgb(52 199 89)" : "rgb(180 195 215)",
-                    background: language === lang ? "rgb(52 199 89 / 0.1)" : "transparent",
+                    color:
+                      language === lang ? "rgb(52 199 89)" : "rgb(180 195 215)",
+                    background:
+                      language === lang
+                        ? "rgb(52 199 89 / 0.1)"
+                        : "transparent",
                   }}
                 >
                   {lang}

@@ -54,7 +54,9 @@ export const places = pgTable(
     ),
     uniqueIndex("places_source_unique_idx")
       .on(table.source, table.sourceId)
-      .where(sql`${table.source} is not null and ${table.sourceId} is not null`),
+      .where(
+        sql`${table.source} is not null and ${table.sourceId} is not null`,
+      ),
   ],
 );
 
@@ -82,5 +84,25 @@ export const placeTags = pgTable(
   (table) => [primaryKey({ columns: [table.placeId, table.tag] })],
 );
 
+export const savedRoutes = pgTable(
+  "saved_routes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    deviceId: text("device_id").notNull(),
+    name: text("name").notNull(),
+    placeIds: jsonb("place_ids").notNull().$type<string[]>(),
+    transportType: text("transport_type").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [index("saved_routes_device_id_idx").on(table.deviceId)],
+);
+
 export type PlaceRow = typeof places.$inferSelect;
 export type NewPlaceRow = typeof places.$inferInsert;
+export type SavedRouteRow = typeof savedRoutes.$inferSelect;
+export type NewSavedRouteRow = typeof savedRoutes.$inferInsert;

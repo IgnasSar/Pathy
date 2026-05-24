@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { createElement } from "react";
-import type { PlaceSummary } from "@pathy/shared";
+import type { PlaceSummary, TransportType } from "@pathy/shared";
 import { optimizePlacesOrder } from "../utils/geo";
 
 const MAX_PLACES = 10;
@@ -24,6 +24,9 @@ function loadFromSession(): PlaceSummary[] {
 
 export interface RouteStore {
   selectedPlaces: PlaceSummary[];
+  transport: TransportType | null;
+  setTransport: (t: TransportType | null) => void;
+  setSelectedPlaces: (places: PlaceSummary[]) => void;
   addPlace: (place: PlaceSummary) => { success: boolean; message?: string };
   removePlace: (id: string) => void;
   hasPlace: (id: string) => boolean;
@@ -36,6 +39,7 @@ const RouteContext = createContext<RouteStore | null>(null);
 export function RouteStoreProvider({ children }: { children: ReactNode }) {
   const [selectedPlaces, setSelectedPlaces] =
     useState<PlaceSummary[]>(loadFromSession);
+  const [transport, setTransport] = useState<TransportType | null>(null);
 
   useEffect(() => {
     sessionStorage.setItem(SESSION_KEY, JSON.stringify(selectedPlaces));
@@ -89,6 +93,9 @@ export function RouteStoreProvider({ children }: { children: ReactNode }) {
     {
       value: {
         selectedPlaces,
+        transport,
+        setTransport,
+        setSelectedPlaces,
         addPlace,
         removePlace,
         hasPlace,

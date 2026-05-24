@@ -83,7 +83,9 @@ export function FilterBar({
         <div className="flex items-center justify-between">
           <p className="text-xs" style={{ color: "rgb(130 145 170)" }}>
             {[
-              selectedCategory ? t(`cat.${selectedCategory}` as TranslationKey) : null,
+              selectedCategory
+                ? t(`cat.${selectedCategory}` as TranslationKey)
+                : null,
               selectedRadius ? `<= ${selectedRadius} km` : null,
             ]
               .filter(Boolean)

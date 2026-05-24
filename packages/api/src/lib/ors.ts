@@ -77,11 +77,8 @@ export async function getOrsRoute(
     segments.push(path.slice(wayPointIndices[i], wayPointIndices[i + 1] + 1));
   }
 
-  const distanceKm =
-    Math.round(feature.properties.summary.distance / 100) / 10;
-  const durationMinutes = Math.round(
-    feature.properties.summary.duration / 60,
-  );
+  const distanceKm = Math.round(feature.properties.summary.distance / 100) / 10;
+  const durationMinutes = Math.round(feature.properties.summary.duration / 60);
 
   return { path, segments, distanceKm, durationMinutes };
 }
