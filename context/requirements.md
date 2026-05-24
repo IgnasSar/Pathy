@@ -1,4 +1,4 @@
-Last synced: 2026-05-19
+Last synced: 2026-05-24
 
 ---
 
@@ -59,7 +59,7 @@ Last synced: 2026-05-19
 
 ### [ECS-25] Objekto atpažinimas pagal nuotrauką (DI)
 
-- **Statusas:** To Do
+- **Statusas:** Done
 - **Prioritetas:** High
 - **Istorijos taškai:** 13
 - **Atsakingas:** Airidas Plokštys
@@ -80,10 +80,10 @@ Last synced: 2026-05-19
   - _Priklauso nuo (Blocked by):_ ECS-32
   - _Susiję su (Relates):_ ECS-10
 - **Sub-užduotys:**
-  - [To Do] [ECS-70] Nuotraukos įkėlimo komponento ir kameros prieigos UI kūrimas.
-  - [To Do] [ECS-71] Integracija su AI vaizdo atpažinimo API
-  - [To Do] [ECS-72] Atpažinto raktažodžio susiejimo su DB įrašais logikos programavimas.
-  - [To Do] [ECS-73] Rezultato kortelės ir klaidų pranešimų atvaizdavimas vartotojo sąsajoje.
+  - [Done] [ECS-70] Nuotraukos įkėlimo komponento ir kameros prieigos UI kūrimas.
+  - [Done] [ECS-71] Integracija su AI vaizdo atpažinimo API
+  - [Done] [ECS-72] Atpažinto raktažodžio susiejimo su DB įrašais logikos programavimas.
+  - [Done] [ECS-73] Rezultato kortelės ir klaidų pranešimų atvaizdavimas vartotojo sąsajoje.
 
 ### [ECS-26] Automatinis duomenų atnaujinimas (scraping)
 
