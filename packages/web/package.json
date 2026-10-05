@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "typecheck": "tsc -b",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "cypress:open": "cypress open --component",
+    "cypress:run": "cypress run --component"
   },
   "dependencies": {
     "@pathy/shared": "workspace:*",
