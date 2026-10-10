@@ -384,7 +384,7 @@ export function RouteView() {
                 </p>
                 <p className="text-sm font-bold text-white">
                   {routeData.totals.durationMinutes >= 60
-                    ? `${Math.floor(routeData.totals.durationMinutes / 60)}${t("place.h")} ${routeData.totals.durationMinutes % 60}${t("place.min")}`
+                    ? `${Math.floor(routeData.totals.durationMinutes / 60)}${t("place.h")}${routeData.totals.durationMinutes % 60 > 0 ? ` ${routeData.totals.durationMinutes % 60}${t("place.min")}` : ""}`
                     : `${routeData.totals.durationMinutes}${t("place.min")}`}
                 </p>
               </div>
