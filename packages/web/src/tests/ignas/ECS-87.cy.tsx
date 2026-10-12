@@ -1,7 +1,7 @@
 import type { PlaceSummary, PlacesResponse } from '@pathy/shared';
-import { SearchView } from './SearchView';
-import { LangStoreProvider } from '../store/langStore';
-import { RouteStoreProvider } from '../store/routeStore';
+import { SearchView } from '../../views/SearchView';
+import { LangStoreProvider } from '../../store/langStore';
+import { RouteStoreProvider } from '../../store/routeStore';
 
 const makePlace = (id: string, name: string): PlaceSummary => ({
   id,

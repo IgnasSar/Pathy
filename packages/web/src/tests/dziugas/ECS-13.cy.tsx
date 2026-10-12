@@ -1,5 +1,5 @@
 import type { PlaceSummary } from "@pathy/shared";
-import App from "../App";
+import App from "../../App";
 
 const ROUTE_PLACES_SESSION_KEY = "pathy_route_places_v2";
 const selectedPlaces: PlaceSummary[] = [

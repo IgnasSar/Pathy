@@ -1,9 +1,9 @@
 import type { PlaceSummary, PlacesResponse } from '@pathy/shared';
-import { RouteView } from './RouteView';
-import { SearchView } from './SearchView';
-import { PlaceCard } from '../components/PlaceCard';
-import { LangStoreProvider } from '../store/langStore';
-import { RouteStoreProvider } from '../store/routeStore';
+import { RouteView } from '../../views/RouteView';
+import { SearchView } from '../../views/SearchView';
+import { PlaceCard } from '../../components/PlaceCard';
+import { LangStoreProvider } from '../../store/langStore';
+import { RouteStoreProvider } from '../../store/routeStore';
 
 const SESSION_KEY = 'pathy_route_places_v2';
 
