@@ -64,8 +64,11 @@ Component tests (Cypress) live next to the code: `packages/web/src/tests/<author
 (`.cy.ts` for API tests).
 
 ```bash
-pnpm cypress:run                                    # all specs
-pnpm exec cypress run --component --headed --spec "packages/web/src/tests/laurynas/**"  # one author
+# all specs
+pnpm cypress:run
+
+# one author
+pnpm exec cypress run --component --headed --spec "packages/web/src/tests/laurynas/**"
 ```
 
 - API tests (`*.api.cy.ts`) need a running API (`pnpm dev:api`; URL overridable via `API_URL`).
