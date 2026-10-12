@@ -1,6 +1,4 @@
 // Reikia veikiančio API (pnpm dev:api) su DATABASE_URL. Adresą galima pakeisti: --expose API_URL=...
-import { screenshotOnPass } from "./helpers";
-
 const API: string = Cypress.expose("API_URL") ?? "http://localhost:3001";
 
 interface Dataset {
@@ -12,8 +10,6 @@ interface Dataset {
 
 describe("[ECS-67] Maršruto generavimo sąlygų validavimas – serverio pusė (POST /api/route-preview)", () => {
   let ids: string[] = [];
-
-  afterEach(screenshotOnPass);
 
   before(() => {
     cy.request(`${API}/api/places?limit=11&offset=300`).then((res) => {
@@ -47,7 +43,8 @@ describe("[ECS-67] Maršruto generavimo sąlygų validavimas – serverio pusė 
         expect(res.status, "užklausa atmesta (4xx)").to.be.within(400, 499);
         expect(res.body, "klaidos pranešimas")
           .to.have.property("error")
-          .that.is.a("string").and.not.empty;
+          .that.is.a("string")
+          .with.length.above(0);
         expect(res.body, "maršrutas negrąžinamas").not.to.have.property(
           "stops",
         );
