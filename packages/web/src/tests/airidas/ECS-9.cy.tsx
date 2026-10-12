@@ -2,7 +2,7 @@ import { FilterBar } from "../../components/FilterBar";
 import { LangStoreProvider } from "../../store/langStore";
 import type { PlaceCategory, RadiusOptionKm } from "@pathy/shared";
 
-describe("<FilterBar /> - [ECS-9] Vartotojo objektų filtravimas (atstumas)", () => {
+describe("[ECS-9] Vartotojo objektų filtravimas (atstumas)", () => {
   const defaultCategories: PlaceCategory[] = [
     "castle",
     "museum",
@@ -33,104 +33,123 @@ describe("<FilterBar /> - [ECS-9] Vartotojo objektų filtravimas (atstumas)", ()
     return { onCategoryChangeSpy, onRadiusChangeSpy };
   };
 
-  it("UI: Komponentas sėkmingai atvaizduoja kategorijas ir atstumo filtrus, kai lokacija žinoma", () => {
+  it("TC-ECS9-01 [EP]: Patikrinti greitąjį atstumo pasirinkimą (1 km, 5 km, 10 km) (AC1, AC3)", () => {
     mountComponent();
 
-    // Kategorijų mygtukai
-    cy.get("button#filter-cat-all").should("be.visible");
-    cy.get("button#filter-cat-castle").should("be.visible");
-    cy.get("button#filter-cat-museum").should("be.visible");
-
-    // Atstumo mygtukai
-    cy.get("button#filter-radius-all").should("be.visible");
-    cy.get("button#filter-radius-5").should("be.visible");
-    cy.get("button#filter-radius-10").should("be.visible");
-  });
-
-  it("TC-ECS9-01 [EP]: Patikrinti atstumo pasirinkimą iš pateiktų reikšmių (5 km, 10 km) (AC1, AC3)", () => {
-    mountComponent();
-
-    // Paspausti 5 km mygtuką
+    // Reikalavimas: turi būti greitojo pasirinkimo mygtukai (1 km, 5 km, 10 km)
+    cy.get("button#filter-radius-1", { timeout: 1000 }).should("exist");
     cy.get("button#filter-radius-5").click();
-    cy.get("@onRadiusChangeSpy").should("have.been.calledWith", 5);
 
-    // Paspausti 10 km mygtuką
-    cy.get("button#filter-radius-10").click();
-    cy.get("@onRadiusChangeSpy").should("have.been.calledWith", 10);
-  });
-
-  it("TC-ECS9-02 [BVA]: Patikrinti minimalią leistiną sąrašo ribą (apatinė reikšmė 5 km) (AC1, AC5)", () => {
-    mountComponent();
-
-    // Pirmoji minimali reikšmė iš galimų pasirinkimų sąrašo
-    cy.get("button#filter-radius-5").click();
+    // Reikalavimas: paspaudus atstumą, filtravimas įvykdomas paspaudus mygtuką „Filtruoti“
+    cy.contains("button", "Filtruoti", { timeout: 1000 }).click();
     cy.get("@onRadiusChangeSpy").should("have.been.calledWith", 5);
   });
 
-  it('TC-ECS9-03 [EP]: Patikrinti atstumo filtro atšaukimą pasirinkus "Visi" (AC1)', () => {
-    mountComponent({ selectedRadius: 10 });
-
-    cy.get("button#filter-radius-all").click();
-    cy.get("@onRadiusChangeSpy").should("have.been.calledWith", null);
-  });
-
-  it("TC-ECS9-04 [BVA]: Patikrinti maksimalią leistiną sąrašo ribą (viršutinė reikšmė 100 km) (AC1, AC5)", () => {
+  it("TC-ECS9-02 [BVA]: Patikrinti minimalią leistiną ribą (Min = 1 km) (AC1, AC3, AC5)", () => {
     mountComponent();
 
-    // Didžiausia leistina reikšmė iš radiusOptions sąrašo
-    cy.get("button#filter-radius-100").click();
-    cy.get("@onRadiusChangeSpy").should("have.been.calledWith", 100);
+    // Reikalavimas: įvesti reikšmę „1“ į rankinės įvesties lauką ir spausti „Filtruoti“
+    cy.get("input#custom-distance-input", { timeout: 1000 })
+      .should("be.visible")
+      .type("1");
+    cy.contains("button", "Filtruoti", { timeout: 1000 }).click();
+    cy.get("@onRadiusChangeSpy").should("have.been.calledWith", 1);
   });
 
-  it("TC-ECS9-05 [DT]: Patikrinti pakartotinį pasirinkto atstumo paspaudimą (atžymėjimą)", () => {
-    // Kai jau pasirinktas 10 km, paspaudus ant jo dar kartą, filtras išvalomas
-    mountComponent({ selectedRadius: 10 });
+  it("TC-ECS9-03 [BVA]: Patikrinti reikšmę žemiau minimumo (0 km) (AC5, AC6)", () => {
+    mountComponent();
 
-    cy.get("button#filter-radius-10").click();
-    cy.get("@onRadiusChangeSpy").should("have.been.calledWith", null);
+    // Reikalavimas: įvesti reikšmę „0“ ir spausti „Filtruoti“ -> Filtravimas nevykdomas, rodomas klaidos pranešimas
+    cy.get("input#custom-distance-input", { timeout: 1000 })
+      .should("be.visible")
+      .type("0");
+    cy.contains("button", "Filtruoti", { timeout: 1000 }).click();
+    cy.get("@onRadiusChangeSpy").should("not.have.been.called");
+    cy.contains("Klaida: atstumas turi būti bent 1 km", { timeout: 1000 }).should(
+      "be.visible",
+    );
   });
 
-  it("TC-ECS9-06 [DT]: Patikrinti, kad atstumo pasirinkimai nerodomi, kai vartotojo lokacija nežinoma (hasLocation=false)", () => {
-    mountComponent({ hasLocation: false });
+  it("TC-ECS9-04 [BVA]: Patikrinti maksimalią leistiną ribą (Max = 300 km) (AC1, AC3, AC5)", () => {
+    mountComponent();
 
-    // Kategorijos turi būti matomos
-    cy.get("button#filter-cat-all").should("be.visible");
-
-    // Atstumo pasirinkimai neturi egzistuoti DOM'e
-    cy.get("button#filter-radius-all").should("not.exist");
-    cy.get("button#filter-radius-5").should("not.exist");
-    cy.get("button#filter-radius-10").should("not.exist");
+    // Reikalavimas: įvesti reikšmę „300“ ir spausti „Filtruoti“ -> Filtravimas atliekamas sėkmingai 300 km spinduliu
+    cy.get("input#custom-distance-input", { timeout: 1000 })
+      .should("be.visible")
+      .type("300");
+    cy.contains("button", "Filtruoti", { timeout: 1000 }).click();
+    cy.get("@onRadiusChangeSpy").should("have.been.calledWith", 300);
   });
 
-  it("TC-ECS9-07 [EP]: Patikrinti aktyvaus atstumo mygtuko stiliaus būseną (active klasė)", () => {
-    mountComponent({ selectedRadius: 25 });
+  it("TC-ECS9-05 [BVA]: Patikrinti reikšmę virš leistino maksimumo (301 km) (AC5, AC6)", () => {
+    mountComponent();
 
-    cy.get("button#filter-radius-25").should("have.class", "active");
-    cy.get("button#filter-radius-5").should("not.have.class", "active");
-    cy.get("button#filter-radius-all").should("not.have.class", "active");
+    // Reikalavimas: įvesti reikšmę „301“ ir spausti „Filtruoti“ -> Filtravimas nevykdomas, rodomas klaidos pranešimas
+    cy.get("input#custom-distance-input", { timeout: 1000 })
+      .should("be.visible")
+      .type("301");
+    cy.contains("button", "Filtruoti", { timeout: 1000 }).click();
+    cy.get("@onRadiusChangeSpy").should("not.have.been.called");
+    cy.contains("Klaida: atstumas negali viršyti 300 km", { timeout: 1000 }).should(
+      "be.visible",
+    );
   });
 
-  it('TC-ECS9-08 [DT]: Patikrinti filtro išvalymo mygtuką ("Išvalyti")', () => {
-    mountComponent({ selectedCategory: "castle", selectedRadius: 10 });
+  it("TC-ECS9-06 [EP]: Patikrinti neigiamo skaičiaus įvedimą (AC5, AC6)", () => {
+    mountComponent();
 
-    // Turi matytis suvestinės eilutė ir mygtukas "Išvalyti"
-    cy.contains("button", "Išvalyti").should("be.visible").click();
-
-    cy.get("@onCategoryChangeSpy").should("have.been.calledWith", null);
-    cy.get("@onRadiusChangeSpy").should("have.been.calledWith", null);
+    // Reikalavimas: įvesties lauke įvesti „-10“ ir spausti „Filtruoti“ -> Filtravimas nevykdomas, rodomas klaidos pranešimas
+    cy.get("input#custom-distance-input", { timeout: 1000 })
+      .should("be.visible")
+      .type("-10");
+    cy.contains("button", "Filtruoti", { timeout: 1000 }).click();
+    cy.get("@onRadiusChangeSpy").should("not.have.been.called");
+    cy.contains("Klaida: neigiamas atstumas negalimas", { timeout: 1000 }).should(
+      "be.visible",
+    );
   });
 
-  it("TC-ECS9-09 [EP]: Patikrinti suvestinės tekstą, kai pasirinktas atstumo filtras", () => {
-    mountComponent({ selectedRadius: 10 });
+  it("TC-ECS9-07 [EP]: Patikrinti teksto įvedimą į atstumo lauką (AC5, AC6)", () => {
+    mountComponent();
 
-    cy.contains("<= 10 km").should("be.visible");
+    // Reikalavimas: įvesties lauke įvesti „vilnius“ ir spausti „Filtruoti“ -> Neleidžiama įvesti raidžių arba rodomas klaidos pranešimas
+    cy.get("input#custom-distance-input", { timeout: 1000 })
+      .should("be.visible")
+      .type("vilnius");
+    cy.contains("button", "Filtruoti", { timeout: 1000 }).click();
+    cy.get("@onRadiusChangeSpy").should("not.have.been.called");
+    cy.contains("Klaida: įveskite skaičių", { timeout: 1000 }).should(
+      "be.visible",
+    );
   });
 
-  it("TC-ECS9-10 [EP]: Patikrinti kategorijos ir atstumo filtrų bendrą sąveiką", () => {
-    mountComponent({ selectedCategory: "castle", selectedRadius: 5 });
+  it("TC-ECS9-08 [DT]: Patikrinti, kad pakeitus reikšmę filtravimas neįvyksta be mygtuko paspaudimo (AC2)", () => {
+    mountComponent();
 
-    // Abu turi turėti active klasę
-    cy.get("button#filter-cat-castle").should("have.class", "active");
-    cy.get("button#filter-radius-5").should("have.class", "active");
+    // Reikalavimas: įvesti „50“, bet nespausti mygtuko „Filtruoti“ -> Rezultatai nepersikrauna
+    cy.get("input#custom-distance-input", { timeout: 1000 })
+      .should("be.visible")
+      .type("50");
+    cy.get("@onRadiusChangeSpy").should("not.have.been.called");
+  });
+
+  it("TC-ECS9-09 [DT]: Patikrinti pakartotinį filtravimą paspaudus mygtuką (AC2, AC3)", () => {
+    mountComponent();
+
+    // Reikalavimas: pakeista atstumo reikšmė į „50“. Paspausti mygtuką „Filtruoti“ -> filtravimas atliekamas
+    cy.get("input#custom-distance-input", { timeout: 1000 })
+      .should("be.visible")
+      .type("50");
+    cy.contains("button", "Filtruoti", { timeout: 1000 }).click();
+    cy.get("@onRadiusChangeSpy").should("have.been.calledWith", 50);
+  });
+
+  it("TC-ECS9-10 [EP]: Patikrinti elgseną, kai nurodytame spindulyje objektų nėra (AC4)", () => {
+    mountComponent();
+
+    // Reikalavimas: pasirinkti 1 km ir spausti „Filtruoti“ -> Sąrašas tuščias, rodomas pranešimas, kad objektų nerasta
+    cy.get("button#filter-radius-1", { timeout: 1000 }).should("exist").click();
+    cy.contains("button", "Filtruoti", { timeout: 1000 }).click();
+    cy.contains("Objektų nerasta", { timeout: 1000 }).should("be.visible");
   });
 });

@@ -189,16 +189,14 @@ describe("<RouteView /> - [ECS-12] Maršruto sudarymas pagal objektus ir transpo
     cy.contains("28.5 km").should("be.visible");
   });
 
-  it("TC-ECS12-02 [BVA]: Patikrinti sąrašo elgseną su 1 objektu (AC1, AC7)", () => {
+  it("TC-ECS12-02 [BVA]: Patikrinti bandymą sudaryti maršrutą su 1 objektu (AC1, AC7)", () => {
     mountComponent(mockPlaces.slice(0, 1));
 
-    // Rodo 1 vietą sąraše
-    cy.get("#route-item-place-1").should("be.visible");
-    cy.contains("1 / 10").should("be.visible");
+    // Reikalavimas: pasirinktas tik 1 objektas, paspausti mygtuką „Sudaryti maršrutą“
+    cy.get("button#generate-route-btn", { timeout: 1000 }).click();
 
-    // Transporto pasirinkimas ir generavimo mygtukas nėra rodomi, nes vietų mažiau nei 2
-    cy.get("button#generate-route-btn").should("not.exist");
-    cy.get("button#transport-car").should("not.exist");
+    // Reikalavimas: rodomas pranešimas, kad reikia pasirinkti bent 2 objektus
+    cy.contains("Reikia pasirinkti bent 2 objektus", { timeout: 1000 }).should("be.visible");
   });
 
   it("TC-ECS12-03 [EP]: Patikrinti maršruto sudarymą su keliais objektais (>2, pvz. 3 objektai) (AC1, AC3)", () => {
