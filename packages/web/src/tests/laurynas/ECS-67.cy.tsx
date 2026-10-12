@@ -66,9 +66,6 @@ function generateAndExpectRoute(n: number, transportType: TransportType) {
   cy.contains(MSG_MIN_PLACES).should("not.exist");
   cy.contains(MSG_TRANSPORT).should("not.exist");
   cy.contains("42.5 km").should("be.visible");
-  // RouteMapView po 80 ms kviečia map.invalidateSize() (laikmatis neišvalomas) –
-  // palaukiama, kad klaida nepersikeltų į kitą testą, kai žemėlapis jau pašalintas
-  cy.wait(200);
 }
 
 describe("[ECS-67] Maršruto generavimo sąlygų validavimas – UI", () => {

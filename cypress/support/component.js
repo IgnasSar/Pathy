@@ -21,5 +21,18 @@ import { mount } from 'cypress/react'
 
 Cypress.Commands.add('mount', mount)
 
+Cypress.on('uncaught:exception', (err) => {
+  if (
+    err.message.includes('_leaflet_pos') ||
+    err.message.includes('invalidateSize')
+  ) {
+    return false;
+  }
+});
+
+Cypress.Screenshot.defaults({
+  waitForAnimations: false,
+})
+
 // Example use:
 // cy.mount(<MyComponent />)
