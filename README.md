@@ -56,6 +56,20 @@ From the repository root:
 - `pnpm lint:fix` - run ESLint with auto-fixes
 - `pnpm format` - format the repo with Prettier
 - `pnpm format:check` - check formatting without writing changes
+- `pnpm cypress:run` - run component tests (headed; screenshots of failed tests are saved to `cypress/screenshots/`)
+
+## Testing
+
+Component tests (Cypress) live next to the code: `packages/web/src/tests/<author>/<STORY-ID>.cy.tsx`
+(`.cy.ts` for API tests).
+
+```bash
+pnpm cypress:run                                    # all specs
+pnpm exec cypress run --component --headed --spec "packages/web/src/tests/laurynas/**"  # one author
+```
+
+- API tests (`*.api.cy.ts`) need a running API (`pnpm dev:api`; URL overridable via `API_URL`).
+- `--headed` is used because headless Electron hangs on `cy.screenshot()` in some environments.
 
 ## Repository Structure
 

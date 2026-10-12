@@ -20,7 +20,7 @@
     "typecheck:api": "pnpm --dir packages/api typecheck",
     "typecheck:shared": "pnpm --dir packages/shared typecheck",
     "typecheck": "pnpm run typecheck:shared && pnpm run typecheck:api && pnpm run typecheck:web",
-    "cypress:run": "cypress run --component",
+    "cypress:run": "cypress run --component --headed",
     "cypress:open": "cypress open --component",
     "scrape:pamatyklietuvoje": "node scripts/scrape-pamatyklietuvoje.mjs",
     "import:pamatyklietuvoje": "pnpm run build:shared && pnpm --dir packages/api import:pamatyklietuvoje",
