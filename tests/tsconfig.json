@@ -1,0 +1,12 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM"],
+    "types": ["node"],
+    "typeRoots": ["../packages/api/node_modules/@types"],
+    "paths": {
+      "@pathy/shared": ["../packages/shared/src/index.ts"]
+    }
+  },
+  "include": ["**/*.ts"]
+}

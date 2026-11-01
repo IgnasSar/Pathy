@@ -73,7 +73,7 @@ function isCoordinates(value: unknown): value is Coordinates {
   );
 }
 
-function isRoutePreviewRequest(value: unknown): value is RoutePreviewRequest {
+export function isRoutePreviewRequest(value: unknown): value is RoutePreviewRequest {
   return (
     typeof value === "object" &&
     value !== null &&
@@ -99,7 +99,7 @@ function getOriginFromQuery(query: PlacesQuerystring) {
   return { lat, lng };
 }
 
-function getPlacesQueryError(query: PlacesQuerystring) {
+export function getPlacesQueryError(query: PlacesQuerystring) {
   if (
     query.category !== undefined &&
     !PLACE_CATEGORIES.includes(query.category as PlaceCategory)

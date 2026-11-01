@@ -30,6 +30,13 @@ export default defineConfig([
     },
   },
   {
+    files: ["tests/**/*.ts", "metrics/**/*.{mjs,cjs}", "vitest.config.mts"],
+    languageOptions: {
+      ecmaVersion: 2022,
+      globals: globals.node,
+    },
+  },
+  {
     files: ["packages/shared/**/*.ts"],
     languageOptions: {
       ecmaVersion: 2022,
