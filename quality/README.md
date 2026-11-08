@@ -60,8 +60,7 @@ vienam atvejui = `count / 30`.
 ```sh
 pnpm q:api:ors-503       # 1 metrika, 1 atvejis
 pnpm q:api:ors-offline   # 1 metrika, 2 atvejis
-pnpm q:api:ors-slow-5s   # 2 metrika, 1 atvejis
-pnpm q:api:ors-slow-30s  # 2 metrika, 2 atvejis
+pnpm q:api:ors-slow      # 2 metrika: DELAY_MS faile ors-slow.mjs (5000, po to 30000)
 ```
 
 **Konfidencialumas.** `deviceId` perduodamas URL'e, todėl patenka į serverio logus.
