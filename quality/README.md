@@ -27,6 +27,10 @@ DB yra tikra (Supabase). Testai, kurie rašo į DB, naudoja tik testinius `devic
 
 ## Matavimai
 
+Viena komanda – vienas įrankis. Jei abi metrikas matuoja tas pats įrankis, komanda viena;
+jei skirtingi (pvz., k6 ir Lighthouse), komandos dvi. `quality:api:ors-fault` nematuoja –
+jis tik paleidžia API su ORS gedimo simuliacija vietoj `quality:api`.
+
 | #   | Sub-charakteristika     | Metrika                            | Testiniai atvejai                    | Riba                  | Komanda                        |
 | --- | ----------------------- | ---------------------------------- | ------------------------------------ | --------------------- | ------------------------------ |
 | 1   | Elgsena laike           | API atsako laikas p95              | 10 ir 100 naudotojų                  | < 500 ms              | `pnpm quality:time`            |
