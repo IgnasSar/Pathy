@@ -1,6 +1,5 @@
-// Atsparumas klaidoms: ar maršrutas vis tiek sudaromas, kai ORS neveikia,
-// ir kiek laiko naudotojas laukia atsakymo.
-// API turi būti paleistas su viena iš ORS gedimo simuliacijų (žr. README).
+// Atsparumas klaidoms: ar marsrutas sudaromas, kai ORS neveikia, ir kiek laiko laukiama.
+// API turi buti paleistas su `pnpm quality:api:ors-fault`.
 const API = "http://localhost:3001";
 const REQUESTS = 5;
 
@@ -18,22 +17,22 @@ for (let i = 1; i <= REQUESTS; i++) {
   const body = await res.json();
 
   rows.push({
-    užklausa: i,
+    uzklausa: i,
     statusas: res.status,
-    "maršrutas gautas": res.status === 200 && body.totals.distanceKm > 0,
+    "marsrutas gautas": res.status === 200 && body.totals.distanceKm > 0,
     "atstumas km": body.totals?.distanceKm,
     "laikas ms": Math.round(performance.now() - start),
   });
 }
 
-const succeeded = rows.filter((row) => row["maršrutas gautas"]).length;
+const succeeded = rows.filter((row) => row["marsrutas gautas"]).length;
 const avgMs = Math.round(
   rows.reduce((sum, row) => sum + row["laikas ms"], 0) / rows.length,
 );
 
 console.table(rows);
 console.log(
-  `1 metrika. Sėkmingai sudaryti maršrutai: ${succeeded}/${rows.length} (riba: 100 %)`,
+  `1 metrika. Sekmingai sudaryti marsrutai: ${succeeded}/${rows.length} (riba: 100 %)`,
 );
 console.log(
   `2 metrika. Vidutinis atsako laikas: ${avgMs} ms (riba: < 3000 ms)`,

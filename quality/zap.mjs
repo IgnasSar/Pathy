@@ -1,9 +1,5 @@
-// Konfidencialumas, 2 metrika: OWASP ZAP baseline (pasyvus) skenavimas.
-// Ieško trūkstamų saugumo antraščių ir informacijos nutekėjimo, nieko nekeičia.
-//
-// Testiniai atvejai:
-//   API: TARGET = "http://localhost:3001/api/places"
-//   web: TARGET = "http://localhost:4173"
+// konfidencialumas: OWASP ZAP baseline (pasyvus) skenavimas, nieko nekeicia
+// testiniai atvejai: api "http://localhost:3001/api/places" ir web "http://localhost:4173"
 import { execSync } from "node:child_process";
 
 const TARGET = "http://localhost:3001/api/places";
@@ -16,4 +12,4 @@ execSync(
   { stdio: "inherit" },
 );
 
-console.log(`Ataskaita: quality/results/${report}`);
+console.log(`ataskaita: quality/results/${report}`);

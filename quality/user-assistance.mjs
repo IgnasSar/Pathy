@@ -1,18 +1,25 @@
-// User assistance (ISO 25010:2023, buvęs "prieinamumas"):
-// ar sistema tinkama žmonėms su įvairiais gebėjimais.
-// 1 metrika: axe-core randami prieinamumo pažeidimai (WCAG) dviejuose vaizduose.
-// 2 metrika: ar užduotis įmanoma atlikti tik klaviatūra (Tab + Enter).
-// Reikia paleisto API ir web build versijos (žr. README).
+// User assistance (ISO 25010:2023): axe pazeidimai dviejuose vaizduose
+// ir dvi uzduotys tik klaviatura (Tab + Enter).
+// UI perjungiamas i anglu kalba, mygtukai randami pagal tiksliu teksta.
 import puppeteer from "puppeteer";
 import { AxePuppeteer } from "@axe-core/puppeteer";
 
 const WEB = "http://localhost:4173";
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const browser = await puppeteer.launch();
 const page = await browser.newPage();
-await page.setViewport({ width: 390, height: 844 }); // telefono ekranas
+await page.setViewport({ width: 390, height: 844 });
 
-// ── 1 metrika. axe pažeidimai ──────────────────────────────────────────────
+async function openApp() {
+  await page.goto(WEB, { waitUntil: "networkidle0" });
+  await page.evaluate(() => {
+    localStorage.setItem("pathy_language", "EN");
+    sessionStorage.clear();
+  });
+  await page.reload({ waitUntil: "networkidle0" });
+}
+
 async function axeCheck(viewName) {
   const result = await new AxePuppeteer(page).analyze();
   const elements = result.violations.reduce(
@@ -21,46 +28,49 @@ async function axeCheck(viewName) {
   );
 
   console.log(
-    `\n${viewName}: ${result.violations.length} taisyklių pažeidimai, ${elements} elementai`,
+    `\n${viewName}: ${result.violations.length} taisykliu pazeidimai, ${elements} elementai`,
   );
   console.table(
     result.violations.map((v) => ({
-      taisyklė: v.id,
+      taisykle: v.id,
       svarba: v.impact,
-      elementų: v.nodes.length,
-      aprašymas: v.help,
+      elementu: v.nodes.length,
+      aprasymas: v.help,
     })),
   );
 }
 
-console.log("1 metrika. axe pažeidimai (riba: 0 critical ir serious)");
+// Tikslus atitikimas, kad "Add" nesutaptu su "Added" (paspaudus "Added" objektas pasalinamas).
+async function clickButton(text) {
+  await page.click(`::-p-xpath(//button[normalize-space()="${text}"])`);
+  await wait(1000);
+}
 
-await page.goto(WEB, { waitUntil: "networkidle0" });
-await axeCheck("Paieškos vaizdas");
+console.log("1 metrika. axe pazeidimai (riba: 0 critical ir serious)");
 
-// Pridedam 2 objektus ir atidarom maršruto vaizdą.
-const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-await page.click("::-p-text(Pridėti)");
-await wait(1000);
-await page.click("::-p-text(Pridėti)");
-await wait(1000);
+await openApp();
+await axeCheck("Paieskos vaizdas");
+
+await clickButton("Add");
+await clickButton("Add");
 await page.click("#nav-tab-route");
 await wait(1000);
-await axeCheck("Maršruto vaizdas (2 objektai)");
+await axeCheck("Marsruto vaizdas (2 objektai)");
 
-// ── 2 metrika. Užduotis tik klaviatūra ─────────────────────────────────────
-// Spaudžiam Tab, kol fokusas pasiekia mygtuką su nurodytu tekstu, ir spaudžiam Enter.
-// Grąžina Tab paspaudimų skaičių arba null, jei mygtukas nepasiekiamas.
+// Spaudzia Tab, kol fokusas pasiekia mygtuka su nurodytu tekstu, tada Enter.
+// Grazina Tab paspaudimu skaiciu arba null, jei mygtukas nepasiekiamas.
 async function tabToAndPress(text, maxTabs = 80) {
   for (let tabs = 1; tabs <= maxTabs; tabs++) {
     await page.keyboard.press("Tab");
-    const focusedText = await page.evaluate(() =>
-      // Jei fokusas "nukrito" į BODY, jo tekstas yra visas puslapis, todėl jo neskaičiuojam.
+    const lines = await page.evaluate(() =>
+      // Fokusas ant BODY reiskia, kad niekas nepazymeta.
       document.activeElement === document.body
-        ? ""
-        : document.activeElement.innerText.trim(),
+        ? []
+        : document.activeElement.innerText
+            .split("\n")
+            .map((line) => line.trim()),
     );
-    if (focusedText.includes(text)) {
+    if (lines.includes(text)) {
       await page.keyboard.press("Enter");
       await wait(1000);
       return tabs;
@@ -69,43 +79,34 @@ async function tabToAndPress(text, maxTabs = 80) {
   return null;
 }
 
-// Atlieka užduotį: iš eilės pasiekia ir paspaudžia nurodytus mygtukus.
 async function keyboardTask(buttons) {
   let totalTabs = 0;
   for (const button of buttons) {
     const tabs = await tabToAndPress(button);
-    if (tabs === null) return { "Tab paspaudimų": `nepasiektas "${button}"` };
+    if (tabs === null) return { "Tab paspaudimu": `nepasiektas "${button}"` };
     totalTabs += tabs;
   }
-  return { "Tab paspaudimų": totalTabs };
+  return { "Tab paspaudimu": totalTabs };
 }
 
-console.log("\n2 metrika. Užduotys tik klaviatūra (riba: abi atliekamos)");
+console.log("\n2 metrika. Uzduotys tik klaviatura (riba: abi atliekamos)");
 
-// Pradedam iš naujo su tuščiu maršrutu (maršrutas saugomas sessionStorage).
-await page.evaluate(() => sessionStorage.clear());
-await page.goto(WEB, { waitUntil: "networkidle0" });
+await openApp();
 
-// A užduotis: pridėti objektą į maršrutą. Pavyko, jei skaitliukas rodo 1.
-const taskA = await keyboardTask(["Pridėti"]);
-const routeTab = await page.$eval("#nav-tab-route", (el) => el.innerText);
-taskA.atlikta = routeTab.includes("1");
+const taskA = await keyboardTask(["Add"]);
+taskA.atlikta = (
+  await page.$eval("#nav-tab-route", (el) => el.innerText)
+).includes("1");
 
-// B užduotis: pridėti antrą objektą, atidaryti maršrutą, pasirinkti transportą ir sugeneruoti.
-// Pavyko, jei atsirado maršruto trukmė.
-const taskB = await keyboardTask([
-  "Pridėti",
-  "Maršrutas",
-  "Automobilis",
-  "Generuoti maršrutą",
-]);
+// Marsruta galima generuoti tik pasirinkus transporta. Pavyko, jei atsirado trukme.
+const taskB = await keyboardTask(["Add", "Route", "Car", "Generate route"]);
 taskB.atlikta = await page.evaluate(() =>
-  document.body.innerText.includes("Trukmė"),
+  document.body.innerText.includes("Duration"),
 );
 
 console.table([
-  { užduotis: "A. Pridėti objektą į maršrutą", ...taskA },
-  { užduotis: "B. Sudaryti maršrutą iš 2 objektų", ...taskB },
+  { uzduotis: "A. Prideti objekta i marsruta", ...taskA },
+  { uzduotis: "B. Sudaryti marsruta is 2 objektu", ...taskB },
 ]);
 
 await browser.close();
