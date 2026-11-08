@@ -18,8 +18,8 @@ Komandos parašytos `sh` sintakse – Windows'e leisti per Git Bash arba WSL.
 Du terminalai:
 
 ```sh
-pnpm q:api   # API be ORS ir Mistral raktų – testai nedegina išorinių API kvotų
-pnpm q:web   # web build versija http://localhost:4173 (/api nukreipiamas į API)
+pnpm quality:api   # API be ORS ir Mistral raktų – testai nedegina išorinių API kvotų
+pnpm quality:web   # web build versija http://localhost:4173 (/api nukreipiamas į API)
 ```
 
 DB yra tikra (Supabase). Testai, kurie rašo į DB, naudoja tik testinius `deviceId`
@@ -27,30 +27,30 @@ DB yra tikra (Supabase). Testai, kurie rašo į DB, naudoja tik testinius `devic
 
 ## Matavimai
 
-| #   | Sub-charakteristika     | Metrika                            | Testiniai atvejai                    | Riba                  | Komanda                  |
-| --- | ----------------------- | ---------------------------------- | ------------------------------------ | --------------------- | ------------------------ |
-| 1   | Elgsena laike           | API atsako laikas p95              | 10 ir 100 naudotojų                  | < 500 ms              | `pnpm q:time`            |
-|     |                         | Puslapio LCP                       | lėtas 4G ir lėtas 3G                 | ≤ 2,5 s               | `pnpm q:lcp`             |
-| 2   | Talpa                   | Užklausos per sekundę              | 10 ir 50 naudotojų                   | – (lyginam)           | `pnpm q:capacity`        |
-|     |                         | Nesėkmingų užklausų dalis          | 10 ir 50 naudotojų                   | < 1 %                 | `pnpm q:capacity`        |
-| 3   | Konfidencialumas        | Neautorizuotos prieigos blokavimas | svetimas ir nutekėjęs `deviceId`     | 100 %                 | `pnpm q:confidentiality` |
-|     |                         | Saugumo įspėjimai (ZAP baseline)   | API ir web                           | 0                     | `pnpm q:zap`             |
-| 4   | Vientisumas             | SQL injekcijų atmetimas            | `query` ir `region` parametrai       | 100 %                 | `pnpm q:integrity`       |
-|     |                         | Netinkamų duomenų atmetimas        | kūrimas (POST) ir keitimas (PATCH)   | 100 %                 | `pnpm q:integrity`       |
-| 5   | Atsparumas (resistance) | Apribotų užklausų dalis (429)      | 100 ir 1000 užklausų vienu metu      | > 0 %                 | `pnpm q:resistance`      |
-|     |                         | Per didelės užklausos              | `limit=24` ir `limit=100000`         | per didelis atmetamas | `pnpm q:resistance`      |
-| 6   | Atsparumas klaidoms     | Sėkmingai sudaryti maršrutai       | ORS grąžina 503 ir ORS nepasiekiamas | 100 %                 | `pnpm q:fault-tolerance` |
-|     |                         | Atsako laikas                      | ORS vėluoja 5 s ir 30 s              | < 3 s                 | `pnpm q:fault-tolerance` |
-| 7   | User assistance         | axe pažeidimai (WCAG)              | paieškos ir maršruto vaizdai         | 0 critical / serious  | `pnpm q:user-assistance` |
-|     |                         | Užduotis tik klaviatūra            | pridėti objektą ir sudaryti maršrutą | abi atliekamos        | `pnpm q:user-assistance` |
-| 8   | Inclusivity             | Išversti UI tekstai                | EN ir DE                             | 100 %                 | `pnpm q:inclusivity`     |
-|     |                         | Išverstas turinys                  | EN ir DE                             | 100 %                 | `pnpm q:inclusivity`     |
+| #   | Sub-charakteristika     | Metrika                            | Testiniai atvejai                    | Riba                  | Komanda                        |
+| --- | ----------------------- | ---------------------------------- | ------------------------------------ | --------------------- | ------------------------------ |
+| 1   | Elgsena laike           | API atsako laikas p95              | 10 ir 100 naudotojų                  | < 500 ms              | `pnpm quality:time`            |
+|     |                         | Puslapio LCP                       | lėtas 4G ir lėtas 3G                 | ≤ 2,5 s               | `pnpm quality:lcp`             |
+| 2   | Talpa                   | Užklausos per sekundę              | 10 ir 50 naudotojų                   | – (lyginam)           | `pnpm quality:capacity`        |
+|     |                         | Nesėkmingų užklausų dalis          | 10 ir 50 naudotojų                   | < 1 %                 | `pnpm quality:capacity`        |
+| 3   | Konfidencialumas        | Neautorizuotos prieigos blokavimas | svetimas ir nutekėjęs `deviceId`     | 100 %                 | `pnpm quality:confidentiality` |
+|     |                         | Saugumo įspėjimai (ZAP baseline)   | API ir web                           | 0                     | `pnpm quality:zap`             |
+| 4   | Vientisumas             | SQL injekcijų atmetimas            | `query` ir `region` parametrai       | 100 %                 | `pnpm quality:integrity`       |
+|     |                         | Netinkamų duomenų atmetimas        | kūrimas (POST) ir keitimas (PATCH)   | 100 %                 | `pnpm quality:integrity`       |
+| 5   | Atsparumas (resistance) | Apribotų užklausų dalis (429)      | 100 ir 1000 užklausų vienu metu      | > 0 %                 | `pnpm quality:resistance`      |
+|     |                         | Per didelės užklausos              | `limit=24` ir `limit=100000`         | per didelis atmetamas | `pnpm quality:resistance`      |
+| 6   | Atsparumas klaidoms     | Sėkmingai sudaryti maršrutai       | ORS grąžina 503 ir ORS nepasiekiamas | 100 %                 | `pnpm quality:fault-tolerance` |
+|     |                         | Atsako laikas                      | ORS vėluoja 5 s ir 30 s              | < 3 s                 | `pnpm quality:fault-tolerance` |
+| 7   | User assistance         | axe pažeidimai (WCAG)              | paieškos ir maršruto vaizdai         | 0 critical / serious  | `pnpm quality:user-assistance` |
+|     |                         | Užduotis tik klaviatūra            | pridėti objektą ir sudaryti maršrutą | abi atliekamos        | `pnpm quality:user-assistance` |
+| 8   | Inclusivity             | Išversti UI tekstai                | EN ir DE                             | 100 %                 | `pnpm quality:inclusivity`     |
+|     |                         | Išverstas turinys                  | EN ir DE                             | 100 %                 | `pnpm quality:inclusivity`     |
 
 Ataskaitos (Lighthouse, ZAP) išsaugomos `quality/results/`.
 
 ## Pastabos
 
-**Talpa.** Po `q:capacity` API kelias minutes apdoroja susikaupusią užklausų eilę.
+**Talpa.** Po `quality:capacity` API kelias minutes apdoroja susikaupusią užklausų eilę.
 Prieš kartojant bet kurį apkrovos testą patikrink, ar paieška vėl atsako greitai:
 
 ```sh
@@ -60,20 +60,20 @@ curl -o /dev/null -w "%{http_code} %{time_total}s\n" "http://localhost:3001/api/
 k6 rodomas „/s“ skaičiuojamas pagal viso testo trukmę, todėl užklausos per sekundę
 vienam atvejui = `count / 30`.
 
-**Atsparumas klaidoms.** Vietoj `q:api` paleidžiam API su ORS gedimo simuliacija
+**Atsparumas klaidoms.** Vietoj `quality:api` paleidžiam API su ORS gedimo simuliacija
 (programos kodas nekeičiamas), tada matuojam:
 
 ```sh
-pnpm q:api:ors-fault     # gedimo tipas – FAULT ir DELAY_MS faile fault-tolerance/ors-fault.mjs
-pnpm q:fault-tolerance
+pnpm quality:api:ors-fault     # gedimo tipas – FAULT ir DELAY_MS faile fault-tolerance/ors-fault.mjs
+pnpm quality:fault-tolerance
 ```
 
 **Konfidencialumas.** `deviceId` perduodamas URL'e, todėl patenka į serverio logus.
-`q:confidentiality` pabaigoje išveda testinį `deviceId`, jį galima rasti API terminalo išvestyje.
+`quality:confidentiality` pabaigoje išveda testinį `deviceId`, jį galima rasti API terminalo išvestyje.
 ZAP prieš web tikrina `vite preview` serverį – produkcinio serverio antraštės priklausytų nuo hostingo.
 
 **Lighthouse** naudoja kompiuteryje įdiegtą Chrome. Jei jo nėra, galima nurodyti
-puppeteer atsisiųstą: `CHROME_PATH=$(node -e 'import("puppeteer").then(async p=>console.log(await p.default.executablePath()))') pnpm q:lcp`.
+puppeteer atsisiųstą: `CHROME_PATH=$(node -e 'import("puppeteer").then(async p=>console.log(await p.default.executablePath()))') pnpm quality:lcp`.
 
 ## Įrankiai
 

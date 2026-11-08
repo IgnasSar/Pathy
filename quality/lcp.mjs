@@ -1,5 +1,5 @@
 // Elgsena laike, 2 metrika: puslapio LCP (Largest Contentful Paint) su Lighthouse.
-// Reikia paleistos web build versijos (pnpm q:web).
+// Reikia paleistos web build versijos (pnpm quality:web).
 //
 // Testiniai atvejai:
 //   lėtas 4G: RTT_MS = 150, THROUGHPUT_KBPS = 1600
